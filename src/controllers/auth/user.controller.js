@@ -8,12 +8,13 @@ export class UserController {
   static async register(req, res) {
     const validatedData = validateData(registerSchema, req.body);
     const user = await UserService.register(validatedData);
-    const token = await signToken({ userId: user.id });
+    // const token = await signToken({ userId: user.id });
 
     res.status(201).json({
       success: true,
+      response : "Inscription éffectué avec succes",
       user: UserDto.transform(user),
-      token,
+      // token,
     });
   }
 

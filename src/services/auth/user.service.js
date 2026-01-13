@@ -1,21 +1,40 @@
 import prisma from "#lib/prisma";
-import { hashPassword, verifyPassword } from "#lib/password";
+import {  hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
+
 
 export class UserService {
   static async register(data) {
-    const { email, password, name } = data;
+    const { email, firstname, lastname, password, avatarUrl} = data;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      throw new ConflictException("Email déjà utilisé");
+    //Verification si les données ont bien été reçu
+    if(!email || !firstname || !lastname || !password || !avatarUrl){
+      throw new NotFoundException("Donnée non reçus");
     }
 
-    const hashedPassword = await hashPassword(password);
+    //Verification si l'utilisateur existe deja dans la base de donnée(unicité de l'utilisateur)
+    const verifyuser =await prisma.user.findUnique({where: {
+      email : email
+    }});
 
-    return prisma.user.create({
-      data: { email, password: hashedPassword, name },
-    });
+    if(verifyuser){
+      throw new ConflictException('l\'Utilisateur existe dejà');
+    }
+
+    //Hashage du mot de passe
+    const passwordHash = hashPassword(password);
+
+    const user = await prisma.user.create({
+      data : {
+        email : email,
+        firstname : firstname,
+        lastname : lastname,
+        password : passwordHash,
+        avatarUrl : avatarUrl
+      }
+    })
+
+    return user;
   }
 
   static async login(email, password) {

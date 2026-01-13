@@ -18,11 +18,7 @@ const registerSchema = z.object({
   firstname : z.string().min(3, "Minimum 3 caractères").optional(),
   lastname : z.string().min(3, "Minimum 3 caractères").optional(),
   avatarUrl : z.any()
-               .refine((file) => file?.size <= MAX_FILE_SIZE, `Taille max : 5Mo.`)
-               .refine(
-                  (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-                  "Seuls les formats .jpg, .jpeg, .png et .webp sont acceptés."
-                )
+               .string()
               .optional(),
                
 });

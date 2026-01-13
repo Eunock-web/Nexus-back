@@ -1,4 +1,4 @@
-import { UserService } from "#services/user.service";
+import { UserService } from "#services/auth/user.service";
 import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";

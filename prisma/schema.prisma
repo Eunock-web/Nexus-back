@@ -25,8 +25,38 @@ model User {
   isVerified Boolean @default(false)
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
+
+  //relation
+  sessions Session[]
+  oauths OAuth[]
 }
 
 
 //Model Session
+model Session{
+  id Int  @id @default(autoincrement())
+  userId Int
+  refreshToken String @unique
+  userAgent String?
+  ipAddress String?
+  location String?
+  expirates DateTime 
+  createdAt DateTime @default(now())
 
+  //relation
+  user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
+
+}
+
+//Model OAutModel
+model OAuth{
+  id Int @id @default(autoincrement())
+  userId Int
+  type String 
+  provider String
+  providerAccountId String
+
+  //relation
+  user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
+   @@unique([provider, providerAccountId])
+}

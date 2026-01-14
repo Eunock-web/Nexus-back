@@ -8,7 +8,7 @@ dotenv.config();
 import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
-import userRouter from "#routes/user.routes";
+import userRouter from "#routes/auth/user.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -2,7 +2,7 @@ import { UserService } from "#services/auth/user.service";
 import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
-import { registerSchema, loginSchema } from "#schemas/user.schema";
+import { registerSchema } from "#schemas/auth/register.schema";
 
 export class UserController {
   static async register(req, res) {

@@ -6,7 +6,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 
-const registerSchema = z.object({
+export const registerSchema = z.object({
 
   email : z.string().email('Email invalide'),
   password : z.string()

@@ -1,6 +1,7 @@
 import prisma from "#lib/prisma";
 import { nodemailer } from nodemailer;
 import { generateOtp } from "#lib/otp";
+import { otpTemplate } from "../../templates/otp-email";
 
 export class OtpService{
     
@@ -39,8 +40,15 @@ export class OtpService{
 
 
     //Fonction d'envoi de l'otp
-    static async SendOtpEmail(email, code){
-        
+    static async SendOtpEmail(email, code, time){
+        const data = {
+            from : '"Nexus App" <no-reply@nexus.com>',
+            to : email,
+            subject : "Verification de votre compte",
+            html : otpTemplate(code, time)
+        };
+
+       return  await this.transporter.sendMail(data);
     }
 
 }

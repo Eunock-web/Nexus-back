@@ -4,6 +4,17 @@ import { generateOtp } from "#lib/otp";
 
 export class OtpService{
     
+    //Fonction de configuration de NodeMailer
+    static transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        secure: false, 
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
     //Fonction de sauvegarde du code 
     static async SaveOtp(email){
         const codeEmail = await generateOtp();
@@ -28,8 +39,8 @@ export class OtpService{
 
 
     //Fonction d'envoi de l'otp
-    static async SendOtp(){
-
+    static async SendOtpEmail(email, code){
+        
     }
 
 }

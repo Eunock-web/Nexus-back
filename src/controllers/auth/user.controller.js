@@ -3,10 +3,12 @@ import { UserDto } from "#dto/user.dto";
 import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
+import { loginSchema } from "#schemas/auth/login.schema";
 
 export class UserController {
   static async register(req, res) {
     const validatedData = validateData(registerSchema, req.body);
+    console.log(validatedData)
     const user = await UserService.register(validatedData);
     // const token = await signToken({ userId: user.id });
 

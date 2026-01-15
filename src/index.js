@@ -11,7 +11,7 @@ import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middlewares
 app.use(helmet());

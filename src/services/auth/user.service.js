@@ -5,36 +5,44 @@ import { ConflictException, UnauthorizedException, NotFoundException } from "#li
 
 export class UserService {
   static async register(data) {
-    const { email, firstname, lastname, password, avatarUrl} = data;
-
     //Verification si les données ont bien été reçu
-    if(!email || !firstname || !lastname || !password || !avatarUrl){
+    if(!data){
       throw new NotFoundException("Donnée non reçus");
     }
 
-    //Verification si l'utilisateur existe deja dans la base de donnée(unicité de l'utilisateur)
-    const verifyuser =await prisma.user.findUnique({where: {
-      email : email
-    }});
+    const { email, firstname, lastname, password, avatarUrl} = data;
 
-    if(verifyuser){
-      throw new ConflictException('l\'Utilisateur existe dejà');
-    }
+    try{
+      //Verification si l'utilisateur existe deja dans la base de donnée(unicité de l'utilisateur)
+      const verifyuser =await prisma.user.findUnique({where: {
+        email : email
+      }});
 
-    //Hashage du mot de passe
-    const passwordHash = hashPassword(password);
-
-    const user = await prisma.user.create({
-      data : {
-        email : email,
-        firstname : firstname,
-        lastname : lastname,
-        password : passwordHash,
-        avatarUrl : avatarUrl
+      if(verifyuser){
+        throw new ConflictException('l\'Utilisateur existe dejà');
       }
-    })
 
-    return user;
+      //Hashage du mot de passe
+      const passwordHash = await hashPassword(password);
+
+      const user = await prisma.user.create({
+        data : {
+          email ,
+          firstname,
+          lastname ,
+          password : passwordHash,
+          avatarUrl
+        }
+      })
+
+      return user;
+    }catch(error){
+      // Gestion des erreurs Prisma (ex: email déjà existant)
+      if (error.code === 'P2002') {
+        throw new Error("Cet email est déjà utilisé");
+      }
+      throw error;
+    }
   }
 
   static async login(email, password) {

@@ -4,12 +4,16 @@ import { ConflictException, UnauthorizedException, NotFoundException } from "#li
 
 
 export class UserService {
+
+  
   static async register(data) {
+
     //Verification si les données ont bien été reçu
     if(!data){
       throw new NotFoundException("Donnée non reçus");
     }
 
+    //Recupeation des données
     const { email, firstname, lastname, password, avatarUrl} = data;
 
     try{
@@ -36,6 +40,7 @@ export class UserService {
       })
 
       return user;
+
     }catch(error){
       // Gestion des erreurs Prisma (ex: email déjà existant)
       if (error.code === 'P2002') {

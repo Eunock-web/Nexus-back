@@ -9,6 +9,8 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
+import swaggerUi from 'swagger-ui-express';
+import { specs } from './lib/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 // Utilisation des routes
-app.use("/users", userRouter);
+app.use("/users",swaggerUi.serve, swaggerUi.setup(specs), userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
 
 // 404 handler

@@ -7,6 +7,8 @@ import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
 
 export class UserController {
+
+  //Register
   static async register(req, res) {
     try{
         const validatedData = validateData(registerSchema, req.body);
@@ -18,6 +20,7 @@ export class UserController {
     
         res.status(201).json({
           success: true,
+          email :  user.email,
           response : "Inscription éffectué avec succes",
           user: UserDto.transform(user),
         });

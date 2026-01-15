@@ -2,6 +2,7 @@ import prisma from "#lib/prisma";
 import nodemailer from 'nodemailer'
 import { generateOtp } from "#lib/otp";
 import { otpTemplate } from "../../templates/otp-email.js";
+import { response } from "express";
 
 export class OtpService{
     
@@ -55,8 +56,41 @@ export class OtpService{
     }
 
     //Fonction de verification du code OTP
-    static async VerifyEmail(code){
+    static async VerifyEmail(email, codeSaisi){
 
+        try{
+            //Recuperer le code en fonction de l'email
+
+            const emailUser = await prisma.otpModel.findUnique({where : {email : email}});
+
+            if(!emailUser){
+                throw new NotFoundException("Veuillez valider votre compte");
+            }
+
+            if(emailUser.code !== codeSaisi){
+                throw new NotFoundException("Code invalide");
+            }
+
+            if(new Date() > emailUser.expirateAt){
+
+            }
+
+            await prisma.user.update({
+                where : {email },
+                data : {isVerified : true}
+            });
+
+            await prisma.user.delete({
+                where : {email },
+            });
+
+            return {
+                success : true,
+                response : "Email vérifié avec success"
+            }
+        }catch(error){
+
+        }
     }
 
 }

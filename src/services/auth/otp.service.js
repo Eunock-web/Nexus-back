@@ -1,7 +1,7 @@
 import prisma from "#lib/prisma";
-import { nodemailer } from nodemailer;
+import nodemailer from 'nodemailer'
 import { generateOtp } from "#lib/otp";
-import { otpTemplate } from "../../templates/otp-email";
+import { otpTemplate } from "../../templates/otp-email.js";
 
 export class OtpService{
     

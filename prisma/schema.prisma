@@ -31,6 +31,7 @@ model User {
   //relation
   sessions Session[]
   oauths OAuth[]
+  otpModels OtpModel[]
 }
 
 
@@ -61,4 +62,16 @@ model OAuth{
   //relation
   user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
    @@unique([provider, providerAccountId])
+}
+
+//Otp Model
+model OtpModel{
+  id Int @id @default(autoincrement())
+  email String @unique
+  code String
+  expirateAt DateTime
+  createdAt DateTime @default(now())
+
+  //relation
+  user User @relation(fields: [email], references: [email], onDelete: Cascade)
 }

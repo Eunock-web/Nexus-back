@@ -19,19 +19,19 @@ export class OtpService{
     //Fonction de sauvegarde du code 
     static async SaveOtp(email){
         const codeEmail = await generateOtp();
-        const expiresAt = new Date(new Date() + 15 * 60 * 1000);
-
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        
         //Enregistrement de l'OTP si l'email n'existe pas encore deja sinon mis a jour du code
         await prisma.otpModel.upsert({
-            where : {email},
+            where : {email : email},
             create : {
-                email,
-                code : codeEmail,
-                expiratedAt : expiresAt
+                email: email,
+                code : String(codeEmail),
+                expirateAt : expiresAt
             },
             update : {
-                code : codeEmail,
-                expiratedAt : expiresAt
+                code : String(codeEmail),
+                expirateAt : expiresAt
             }
         });
 

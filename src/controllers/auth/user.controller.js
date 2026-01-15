@@ -8,17 +8,27 @@ import { OtpService } from "#services/auth/otp.service";
 
 export class UserController {
   static async register(req, res) {
-    const validatedData = validateData(registerSchema, req.body);
-    const user = await UserService.register(validatedData);
-
-    const EmailData = await OtpService.SaveOtp(user.email);
-    await OtpService.SendOtpEmail(user.email, EmailData.codeOtp, EmailData.expireTime);
-
-    res.status(201).json({
-      success: true,
-      response : "Inscription éffectué avec succes",
-      user: UserDto.transform(user),
-    });
+    try{
+        const validatedData = validateData(registerSchema, req.body);
+        console.log(validatedData);
+        const user = await UserService.register(validatedData);
+    
+        const EmailData = await OtpService.SaveOtp(user.email);
+        await OtpService.SendOtpEmail(user.email, EmailData.codeOtp, EmailData.expireTime);
+    
+        res.status(201).json({
+          success: true,
+          response : "Inscription éffectué avec succes",
+          user: UserDto.transform(user),
+        });
+    }catch(error){
+      console.error("Erreur lors du register:", error);
+    
+      return res.status(error.status || 500).json({
+        success: false,
+        message: error.message || "Une erreur est survenue lors de l'inscription.",
+      });
+    }
   }
 
   static async login(req, res) {

@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 });
 
 // Utilisation des routes
-app.use("/users",swaggerUi.serve, swaggerUi.setup(specs), userRouter);
+// app.use("/users",swaggerUi.serve, swaggerUi.setup(specs), userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
 
 // 404 handler

@@ -37,7 +37,7 @@ export class UserService {
           password : passwordHash,
           avatarUrl
         }
-      })
+      });
 
       return user;
 

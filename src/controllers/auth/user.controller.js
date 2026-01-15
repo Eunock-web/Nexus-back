@@ -4,19 +4,20 @@ import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
+import { OtpService } from "#services/auth/otp.service";
 
 export class UserController {
   static async register(req, res) {
     const validatedData = validateData(registerSchema, req.body);
-    console.log(validatedData)
     const user = await UserService.register(validatedData);
-    // const token = await signToken({ userId: user.id });
+
+    const EmailData = await OtpService.SaveOtp(user.email);
+    await OtpService.SendOtpEmail(user.email, EmailData.codeOtp, EmailData.expireTime);
 
     res.status(201).json({
       success: true,
       response : "Inscription éffectué avec succes",
       user: UserDto.transform(user),
-      // token,
     });
   }
 

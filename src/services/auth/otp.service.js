@@ -35,7 +35,10 @@ export class OtpService{
             }
         });
 
-        return codeEmail;
+        return {
+            codeOtp :codeEmail,
+            expireTime : expiresAt
+        };
     }
 
 
@@ -49,6 +52,11 @@ export class OtpService{
         };
 
        return  await this.transporter.sendMail(data);
+    }
+
+    //Fonction de verification du code OTP
+    static async VerifyEmail(code){
+
     }
 
 }

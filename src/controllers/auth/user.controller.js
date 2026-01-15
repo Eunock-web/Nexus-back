@@ -27,7 +27,7 @@ export class UserController {
     const user = await UserService.login(email, password);
     const token = await signToken({ userId: user.id });
 
-    res.json({
+    res.statuts(201).json({
       success: true,
       user: UserDto.transform(user),
       token,

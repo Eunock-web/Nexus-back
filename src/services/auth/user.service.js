@@ -21,7 +21,6 @@ export class UserService {
       const verifyuser =await prisma.user.findUnique({where: {
         email : email
       }});
-
       if(verifyuser){
         throw new ConflictException('l\'Utilisateur existe dejà');
       }

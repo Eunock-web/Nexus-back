@@ -17,6 +17,7 @@ export class OtpService{
         },
     });
 
+
     //Fonction de sauvegarde du code 
     static async SaveOtp(email){
         const codeEmail = await generateOtp();
@@ -55,42 +56,36 @@ export class OtpService{
        return  await this.transporter.sendMail(data);
     }
 
+    
     //Fonction de verification du code OTP
-    static async VerifyEmail(email, codeSaisi){
+    static async VerifyEmail(email, codeSaisi) { 
+        const otpRecord = await prisma.otpModel.findUnique({ where: { email } });
 
-        try{
-            //Recuperer le code en fonction de l'email
-
-            const emailUser = await prisma.otpModel.findUnique({where : {email : email}});
-
-            if(!emailUser){
-                throw new NotFoundException("Veuillez valider votre compte");
-            }
-
-            if(emailUser.code !== codeSaisi){
-                throw new NotFoundException("Code invalide");
-            }
-
-            if(new Date() > emailUser.expirateAt){
-
-            }
-
-            await prisma.user.update({
-                where : {email },
-                data : {isVerified : true}
-            });
-
-            await prisma.user.delete({
-                where : {email },
-            });
-
-            return {
-                success : true,
-                response : "Email vérifié avec success"
-            }
-        }catch(error){
-
+        if (!otpRecord) {
+            throw new NotFoundException("Aucun code de validation trouvé.");
         }
-    }
 
+        // Comparaison en String pour éviter le bug du parseInt
+        if (otpRecord.code !== String(codeSaisi)) {
+            throw new BadRequestException("Code invalide");
+        }
+
+        // Vérification de l'expiration
+        if (new Date() > otpRecord.expirateAt) {
+            throw new BadRequestException("Le code a expiré");
+        }
+
+        // SUCCÈS : On valide l'user et on nettoie l'OTP
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { email },
+                data: { isVerified: true }
+            }),
+            prisma.otpModel.delete({
+                where: { email }
+            })
+        ]);
+
+        return { success: true };
+    }
 }

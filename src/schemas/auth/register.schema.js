@@ -1,11 +1,4 @@
-import { email, optional, z } from 'zod';
-
-
-// Taille max : 5Mo (exemple)
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-
-
+import { z } from 'zod';
 export const registerSchema = z.object({
 
   email : z.string().email('Email invalide'),

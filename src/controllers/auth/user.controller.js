@@ -8,7 +8,6 @@ import { OtpService } from "#services/auth/otp.service";
 
 export class UserController {
 
-  //Register
   static async register(req, res) {
     try{
         const validatedData = validateData(registerSchema, req.body);

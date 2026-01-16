@@ -33,6 +33,7 @@ export class UserController {
     }
   }
 
+  
   static async login(req, res) {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;

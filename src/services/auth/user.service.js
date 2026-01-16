@@ -1,6 +1,8 @@
 import prisma from "#lib/prisma";
 import {  hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
+import { signToken } from "#lib/jwt";
+import { success } from "zod";
 
 
 export class UserService {
@@ -49,15 +51,49 @@ export class UserService {
     }
   }
 
-  static async login(email, password) {
+  static async login(email, password, meta) {
+    //Verification de l'existance de l'utilisateur
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await verifyPassword(user.password, password))) {
+    //Verification si la 2FA est activé
+    const verifyTwoFA = user.twoFactorEnable;
+    if(verifyTwoFA){
+         /**
+         * Implementation du systeme de demande du code TOTP
+         */
+    }
+    
+    //Verification du mot de passe 
+    const passwordConfirmation = await verifyPassword(user.password, password);
+    
+    if (!user || !passwordConfirmation) {
       throw new UnauthorizedException("Identifiants invalides");
     }
 
-    return user;
+    //Generation des tokens 
+    const refreshToken = await signToken(user.id);
+    const accessToken = await signToken(user.id, '15m');
+    const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    
+    await prisma.session.create({
+      data : {
+        userId :user.id,
+        refreshToken : refreshToken,
+        userAgent : meta.userAgent,
+        ipAddress : meta.ipAddress,
+        location : meta.location,
+        expirates : expirateAt
+      }
+    })
+
+    return {
+      accessToken,
+      refreshToken
+    }
+
   }
+
+
 
   static async findAll() {
     return prisma.user.findMany();

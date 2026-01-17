@@ -1,10 +1,11 @@
 import { UserService } from "#services/auth/user.service";
 import { UserDto } from "#dto/user.dto";
-import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
+import { UAParser } from 'ua-parser-js';
+import { getClientLocation } from "#lib/geo";
 
 export class UserController {
 
@@ -28,24 +29,52 @@ export class UserController {
     
       return res.status(error.status || 500).json({
         success: false,
-        message: error.message || "Une erreur est survenue lors de l'inscription.",
+        response: error.message || "Une erreur est survenue lors de l'inscription.",
       });
     }
   }
 
-  
+  //Fonction de Login
   static async login(req, res) {
     const validatedData = validateData(loginSchema, req.body);
     const { email, password } = validatedData;
-
-    const user = await UserService.login(email, password);
-    const token = await signToken({ userId: user.id });
-
-    res.statuts(201).json({
-      success: true,
-      user: UserDto.transform(user),
-      token,
-    });
+    
+    try{
+        //Recuperation du userAgent bruite
+        const useragent = req.headers['user-agent']
+    
+        //Initialisation du parsing
+        const parser = new UAParser(useragent)
+        const result = parser.getResult();
+    
+        //Formatage pour avoir un texte lisible
+        const userAgentFormat = `${result.browser.name} ${result.browser.major} on ${result.os.name} ${result.os.version}`;
+    
+        // l'ip
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; 
+    
+        const data = {
+            userAgent : userAgentFormat,
+            ipAdress : ip,
+            location: getClientLocation(req)
+        }
+        
+        const user = await UserService.login(email, password, data);
+    
+        return res.json({
+          success: true,
+          user : UserDto.transform(user),
+          response : "Login Successfully"
+        });
+    }catch(error){
+      console.error("Erreur lors du register:", error);
+    
+      return res.status(error.status || 500).json({
+        success: false,
+        response: error.message || "Une erreur est survenue lors de l'inscription.",
+      });
+    }  
+    
   }
 
   static async getAll(req, res) {

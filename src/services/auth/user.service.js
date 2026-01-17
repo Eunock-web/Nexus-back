@@ -56,12 +56,12 @@ export class UserService {
     const user = await prisma.user.findUnique({ where: { email } });
 
     //Verification si la 2FA est activé
-    const verifyTwoFA = user.twoFactorEnable;
-    if(verifyTwoFA){
-         /**
-         * Implementation du systeme de demande du code TOTP
-         */
-    }
+    // const verifyTwoFA = user.twoFactorEnable;
+    // if(verifyTwoFA){
+    //      /**
+    //      * Implementation du systeme de demande du code TOTP
+    //      */
+    // }
     
     //Verification du mot de passe 
     const passwordConfirmation = await verifyPassword(user.password, password);
@@ -71,8 +71,11 @@ export class UserService {
     }
 
     //Generation des tokens 
-    const refreshToken = await signToken(user.id);
-    const accessToken = await signToken(user.id, '15m');
+    const refreshToken = await signToken({sub : user.id});
+    const accessToken = await signToken(
+      {sub : user.id},
+      '15m'
+    );
     const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     
     await prisma.session.create({
@@ -81,7 +84,6 @@ export class UserService {
         refreshToken : refreshToken,
         userAgent : meta.userAgent,
         ipAddress : meta.ipAddress,
-        location : meta.location,
         expirates : expirateAt
       }
     })

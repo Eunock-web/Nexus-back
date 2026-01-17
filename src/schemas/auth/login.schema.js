@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const LoginValidation = z.object({
+export const loginSchema = z.object({
   email: z.string().email("Email invalide"),
   password : z.string()
               .min(8, "Il faut au moins 8 caractères")       

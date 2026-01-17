@@ -4,8 +4,6 @@ import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
-import { UAParser } from 'ua-parser-js';
-import { getClientLocation } from "#lib/geo";
 
 export class UserController {
 
@@ -41,29 +39,24 @@ export class UserController {
     
     try{
         //Recuperation du userAgent bruite
-        const useragent = req.headers['user-agent']
-    
-        //Initialisation du parsing
-        const parser = new UAParser(useragent)
-        const result = parser.getResult();
-    
-        //Formatage pour avoir un texte lisible
-        const userAgentFormat = `${result.browser.name} ${result.browser.major} on ${result.os.name} ${result.os.version}`;
+        const useragent = req.headers['user-agent'] || '';
     
         // l'ip
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; 
-    
+
+        //Donnée restante
         const data = {
-            userAgent : userAgentFormat,
+            userAgent : useragent,
             ipAdress : ip,
-            location: getClientLocation(req)
         }
         
         const user = await UserService.login(email, password, data);
     
         return res.json({
           success: true,
-          user : UserDto.transform(user),
+          user : user,
+          userAgent : data.userAgent,
+          ipAdress : data.ipAdress,
           response : "Login Successfully"
         });
     }catch(error){

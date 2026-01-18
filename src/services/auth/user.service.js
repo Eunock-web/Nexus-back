@@ -55,13 +55,6 @@ export class UserService {
     //Verification de l'existance de l'utilisateur
     const user = await prisma.user.findUnique({ where: { email } });
 
-    //Verification si la 2FA est activé
-    // const verifyTwoFA = user.twoFactorEnable;
-    // if(verifyTwoFA){
-    //      /**
-    //      * Implementation du systeme de demande du code TOTP
-    //      */
-    // }
     
     //Verification du mot de passe 
     const passwordConfirmation = await verifyPassword(user.password, password);
@@ -69,6 +62,15 @@ export class UserService {
     if (!user || !passwordConfirmation) {
       throw new UnauthorizedException("Identifiants invalides");
     }
+
+    //Verification si la 2FA est activé
+    // const verifyTwoFA = user.twoFactorEnable;
+    // if(verifyTwoFA){
+    //      /**
+    //      * Implementation du systeme de demande du code TOTP
+    //      */
+    // }
+
 
     //Generation des tokens 
     const refreshToken = await signToken({sub : user.id});

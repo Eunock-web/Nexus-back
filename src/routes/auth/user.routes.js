@@ -9,6 +9,7 @@ const router = Router();
 router.post("/register", asyncHandler(UserController.register));
 router.post("/login", asyncHandler(UserController.login));
 router.post("/verify-email", asyncHandler(OtpController.VerifyEmail));
+router.post("/forgot-password", asyncHandler(UserController.forgotPassword));
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/", asyncHandler(UserController.getAll));

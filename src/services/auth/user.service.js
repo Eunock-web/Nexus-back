@@ -1,6 +1,7 @@
 import prisma from "#lib/prisma";
-import {  hashPassword, verifyPassword } from "#lib/password";
-import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
+import {  hashPassword } from "#lib/password";
+import { ConflictException, NotFoundException } from "#lib/exceptions";
+import { OtpService } from "./otp.service.js";
 
 
 export class UserService {
@@ -49,14 +50,32 @@ export class UserService {
     }
   }
 
-  static async login(email, password) {
-    const user = await prisma.user.findUnique({ where: { email } });
+  
+  //Fonction pour le mot de passe oublié (forgot-password)
+  static async forgotPassword(email){
+    const user = await prisma.user.findUnique({where : {email}});
 
-    if (!user || !(await verifyPassword(user.password, password))) {
-      throw new UnauthorizedException("Identifiants invalides");
+    try{
+      if (!user) {
+        throw new NotFoundException("Utilisateur non trouvé");
+      }
+  
+      //Si l'email existe on envoi le lien de validation avec la fonction LinkValidation
+      const OtpSend = await OtpService.LinkValidation(email); 
+
+      return {
+        success : true,
+        code : OtpSend.codeOtp,
+        expiration : OtpSend.expireTime,
+        response : "Reussi"
+      }
+    }catch(error){
+      return {
+        success : false,
+        response : error
+      }
     }
-
-    return user;
+    
   }
 
   static async findAll() {

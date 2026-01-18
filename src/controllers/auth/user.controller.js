@@ -5,6 +5,8 @@ import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
+import { forgotPasswordSchema } from "#schemas/auth/forgotPass.schema";
+import prisma from "#lib/prisma";
 
 export class UserController {
 
@@ -32,6 +34,88 @@ export class UserController {
       });
     }
   }
+
+  //Fonction pour la gestion du mot de passe oublié (prend l'email et envoi le code otp)
+  static async forgotPassword(req, res) {
+    try {
+        const { email } = req.body;
+
+        // Vérifier si l'user existe
+        const user = await prisma.user.findUnique({ where: { email } });
+        
+        // Même si l'user n'existe pas, on répond "Email envoyé" 
+        // pour éviter que les pirates listent tes utilisateurs.
+        if (!user) {
+            return res.json({ success: true, response: "Si cet email existe, un lien a été envoyé." });
+        }
+
+        // Générer le lien
+        const resetLink = await OtpService.generateResetLink(user);
+
+        //Envoyer l'email (Via ton MailerService)
+        await OtpService.sendResetPasswordEmail(user.email, resetLink);
+        
+        return res.json({
+            success: true,
+            response: "Le lien de réinitialisation a été envoyé par email."
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, response: error.message });
+    }
+}
+
+  //Fonction pour la mis a jour du mot de passe
+  static async verifyResetToken(req, res) {
+      try {
+          const { token } = req.params;
+
+          if (!token) {
+              return res.status(400).json({ success: false, response: "Token manquant." });
+          }
+
+          // Chercher le token en base
+          const otpRecord = await prisma.otpModel.findUnique({
+              where: { code: token }
+          });
+
+          //  Vérifier si le token existe
+          if (!otpRecord) {
+              return res.status(404).json({ 
+                  success: false, 
+                  response: "Lien invalide ou déjà utilisé." 
+              });
+          }
+
+          // Vérifier l'expiration
+          const isExpired = new Date() > new Date(otpRecord.expirateAt);
+          if (isExpired) {
+              // Supprimer le token expiré pour nettoyer la base
+              await prisma.otpModel.delete({ where: { id: otpRecord.id } });
+              
+              return res.status(410).json({ 
+                  success: false, 
+                  response: "Ce lien a expiré. Veuillez refaire une demande." 
+              });
+          }
+
+          // Succès : On confirme que le token est valide
+          // On ne change pas encore le mot de passe ici, on valide juste l'accès au formulaire
+          return res.status(200).json({
+              success: true,
+              response: "Token valide.",
+              userId: otpRecord.userId // Optionnel: renvoyer l'ID pour aider le front
+          });
+
+      } catch (error) {
+          console.error("Erreur Reset Password:", error);
+          return res.status(500).json({ 
+              success: false, 
+              response: "Une erreur interne est survenue." 
+          });
+      }
+  }
+
 
   static async login(req, res) {
     const validatedData = validateData(loginSchema, req.body);

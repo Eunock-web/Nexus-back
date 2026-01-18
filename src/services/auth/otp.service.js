@@ -2,6 +2,7 @@ import prisma from "#lib/prisma";
 import nodemailer from 'nodemailer'
 import { generateOtp } from "#lib/otp";
 import { otpTemplate } from "../../templates/otp-email.js";
+import {resetPasswordTemplate} from "../../templates/resetTemplate.js"
 import crypto from 'crypto';
 
 export class OtpService{
@@ -54,12 +55,12 @@ export class OtpService{
 
         // Enregistrer en base de données
         // On nettoie les anciens tokens de cet utilisateur avant
-        await prisma.otpModel.deleteMany({ where: { userId: user.id } });
+        await prisma.otpModel.deleteMany({ where: { email: user.email } });
 
         await prisma.otpModel.create({
             data: {
                 code: resetToken,
-                userId: user.id,
+                email: user.email,
                 expirateAt: expiresAt
             }
         });
@@ -73,28 +74,17 @@ export class OtpService{
 
 
     static async sendResetPasswordEmail(to, resetLink) {
-        // 1. Configuration du transporteur
-        // Exemple avec Gmail ou un service SMTP classique
-        const transporter = nodemailer.createTransport({
-            host: process.env.MAIL_HOST,
-            port: process.env.MAIL_PORT,
-            auth: {
-                user: process.env.MAIL_USER,
-                pass: process.env.MAIL_PASS,
-            },
-        });
-
-        // 2. Préparation de l'email
+        // Préparation de l'email
         const mailOptions = {
-            from: `"Support TonApp" <${process.env.MAIL_USER}>`,
+            from: `"Support TonApp" <${process.env.EMAIL_USERNAME}>`,
             to: to,
             subject: "Réinitialisation de votre mot de passe",
             html: resetPasswordTemplate(resetLink), // On injecte le template ici
         };
 
-        // 3. Envoi
+        // Envoi
         try {
-            await transporter.sendMail(mailOptions);
+            await this.transporter.sendMail(mailOptions);
             return { success: true };
         } catch (error) {
             console.error("Erreur d'envoi d'email:", error);

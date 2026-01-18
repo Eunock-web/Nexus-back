@@ -63,19 +63,20 @@ export class UserController {
     } catch (error) {
         return res.status(500).json({ success: false, response: error.message });
     }
-}
+  }
 
   //Fonction pour la mis a jour du mot de passe
   static async verifyResetToken(req, res) {
       try {
           const { token } = req.params;
+          console.log(token)
 
           if (!token) {
               return res.status(400).json({ success: false, response: "Token manquant." });
           }
 
           // Chercher le token en base
-          const otpRecord = await prisma.otpModel.findUnique({
+          const otpRecord = await prisma.otpModel.findFirst({
               where: { code: token }
           });
 
@@ -104,7 +105,7 @@ export class UserController {
           return res.status(200).json({
               success: true,
               response: "Token valide.",
-              userId: otpRecord.userId // Optionnel: renvoyer l'ID pour aider le front
+              email: otpRecord.email // Optionnel: renvoyer l'email pour aider le front
           });
 
       } catch (error) {
@@ -117,19 +118,6 @@ export class UserController {
   }
 
 
-  static async login(req, res) {
-    const validatedData = validateData(loginSchema, req.body);
-    const { email, password } = validatedData;
-
-    const user = await UserService.login(email, password);
-    const token = await signToken({ userId: user.id });
-
-    res.statuts(201).json({
-      success: true,
-      user: UserDto.transform(user),
-      token,
-    });
-  }
 
   static async getAll(req, res) {
     const users = await UserService.findAll();

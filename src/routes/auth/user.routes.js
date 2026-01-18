@@ -12,6 +12,7 @@ router.post("/verify-email", asyncHandler(OtpController.VerifyEmail));
 router.post("/forgot-password", asyncHandler(UserController.forgotPassword));
 
 // Consultation de la liste ou d'un utilisateur
+router.get("/reset-password/:token", (UserController.verifyResetToken))
 router.get("/", asyncHandler(UserController.getAll));
 router.get("/:id", asyncHandler(UserController.getById));
 export default router;

@@ -4,6 +4,8 @@ import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
+import { decodeJwt, jwtVerify } from "jose";
+import prisma from "#lib/prisma";
 
 export class UserController {
 
@@ -69,6 +71,51 @@ export class UserController {
     }  
     
   }
+
+
+  //Fonction pour le logout
+  static async logout(req, res){
+    //Recuperation de l'accessToken dans le cookie
+    const accessToken = req.cookiees.accessToken;
+
+
+    try{
+      //Decoder l'accesstoken afin de recuperer l'id de l'utilisateur 
+      const secret  = new TextEncoder().encode(process.env.JWT_SECRET);
+
+      if(accessToken){
+        //Verification et decodage du token
+        const payload = decodeJwt(accessToken)
+  
+        //Recuperation de l'id de l'utilisateur
+        const userId = payload.sub;
+  
+        //Suppression du token dans la table session 
+        await prisma.session.deleteMany({where : {userId : userId}})
+  
+        }
+
+    }catch(error){
+        // Même en cas d'erreur (ex: session déjà supprimée), 
+        // on veut que l'utilisateur soit déconnecté visuellement
+        res.clearCookie('accessToken');
+        return res.status(500).json({ success: false, message: "Erreur lors de la déconnexion" });
+    }finally{ 
+        //suppression des tokens des cookies
+        res.clearCookie('accessToken', {
+          httpOnly : true,
+          secure : process.env.NODE_ENV === 'production',
+          sameSite : 'strict',
+          path : '/'
+        });
+
+        return res.json({
+          success : true,
+          response : "Deconnexion réussie"
+        });
+    }
+  }
+
 
   static async getAll(req, res) {
     const users = await UserService.findAll();

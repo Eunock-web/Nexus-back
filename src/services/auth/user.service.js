@@ -95,8 +95,6 @@ export class UserService {
 
   }
 
-
-
   static async findAll() {
     return prisma.user.findMany();
   }

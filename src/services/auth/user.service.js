@@ -55,7 +55,7 @@ export class UserService {
    * Cette fonction se charge de modifier le mot de passe de l'utilisateur apres que celui ci ai validé le forgotPassword
    */
   static async updatePassword(email, password){
-    //Rechercher l'utilisateur en fonctiond de son mail
+    //Rechercher l'utilisateur en fonction de son mail
     const user = await prisma.user.findUnique({where : {email : email}});
 
     if(!user){
@@ -68,7 +68,7 @@ export class UserService {
 
     if(email == user.email){
       await prisma.user.update({
-        where : email,
+        where : {email : email},
         data : {
           password : passwordHash
         }

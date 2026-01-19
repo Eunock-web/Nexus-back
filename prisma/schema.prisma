@@ -6,9 +6,59 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  // output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+
+//Model User
+model User {
+  id Int @id @default(autoincrement())
+  email String? @unique
+  firstname String? 
+  lastname String?
+  password String?
+  avatarUrl String?
+  twoFactorEnable Boolean @default(false)
+  twoFactorSecret String?
+  isVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  //relation
+  sessions Session[]
+  oauths OAuth[]
+}
+
+
+//Model Session
+model Session{
+  id Int  @id @default(autoincrement())
+  userId Int
+  refreshToken String @unique
+  userAgent String?
+  ipAddress String?
+  location String?
+  expirates DateTime 
+  createdAt DateTime @default(now())
+
+  //relation
+  user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
+
+}
+
+//Model OAutModel
+model OAuth{
+  id Int @id @default(autoincrement())
+  userId Int
+  type String 
+  provider String
+  providerAccountId String
+
+  //relation
+  user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
+   @@unique([provider, providerAccountId])
 }

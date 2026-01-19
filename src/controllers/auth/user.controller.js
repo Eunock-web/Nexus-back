@@ -196,7 +196,35 @@ export class UserController {
     }
   }
 
-    static async getAll(req, res) {
+
+  //Fonction pour la generation des cle pour la 2FA
+  static async setup2FA(req, res) {
+      try {
+          const userId = req.user.id; 
+          const user = await prisma.user.findUnique({ where: { id: userId } });
+
+          // Générer le secret et l'URL
+          const { secret, otpauthUrl } = TwoFactorService.generateSecret(user.email);
+
+          //  Enregistrer le secret temporairement dans le profil de l'user
+          await prisma.user.update({
+              where: { id: userId },
+              data: { twoFactorSecret: secret }
+          });
+
+          //  Envoyer au front (le front générera le QR Code avec l'URL)
+          return res.json({
+              success: true,
+              otpauthUrl, 
+              secret     
+          });
+
+      } catch (error) {
+          return res.status(500).json({ success: false, message: error.message });
+      }
+  }
+  
+  static async getAll(req, res) {
     const users = await UserService.findAll();
     res.json({
       success: true,

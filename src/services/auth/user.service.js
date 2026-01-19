@@ -65,7 +65,7 @@ export class UserService {
           const mfaToken = await signToken({ sub: user.id, type: 'mfa' }, '5m');
           return { requires2FA: true, mfaToken };
       }
-
+    
       // CAS NORMAL : On génère la session et les tokens finaux
       return await this.finalizeLogin(user, meta);
   }

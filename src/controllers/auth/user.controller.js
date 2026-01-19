@@ -1,12 +1,10 @@
 import { UserService } from "#services/auth/user.service";
 import { UserDto } from "#dto/user.dto";
-import { signToken } from "#lib/jwt";
 import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
-import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
-import { forgotPasswordSchema } from "#schemas/auth/forgotPass.schema";
 import prisma from "#lib/prisma";
+import { NotFoundException } from "#lib/exceptions";
 
 export class UserController {
 
@@ -65,7 +63,7 @@ export class UserController {
     }
   }
 
-  //Fonction pour la mis a jour du mot de passe
+  //Fonction pour la verification de l'url envoyer dans le mail
   static async verifyResetToken(req, res) {
       try {
           const { token } = req.params;
@@ -117,9 +115,38 @@ export class UserController {
       }
   }
 
+  /**
+   * 
+   * @param {*} req 
+   * @param {*} res 
+   * 
+   * Cette fonction recevra le mail et le password que le front enverra l'email sera recuperer apres la verification du lien de validation
+   */
+  static async updatePassword(req, res){
+    try{
+      const { email, password } = req.body;
 
+      if(!password && !email){
+        throw NotFoundException('Données non reçu');
+      }
 
-  static async getAll(req, res) {
+      const updatePassword = await UserService.updatePassword(email, password);
+
+      if(updatePassword.success == true){
+        res.json({
+          success : true,
+          response : "Mot de passe mis a jour avec success"
+        })
+      }
+    }catch(error){
+        res.json({
+          success : false,
+          response : error.message
+        })
+    }
+  }
+
+    static async getAll(req, res) {
     const users = await UserService.findAll();
     res.json({
       success: true,

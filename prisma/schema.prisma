@@ -67,7 +67,7 @@ model OAuth{
 model OtpModel{
   id Int @id @default(autoincrement())
   email String @unique
-  code String
+  code String @unique
   expirateAt DateTime
   createdAt DateTime @default(now())
 

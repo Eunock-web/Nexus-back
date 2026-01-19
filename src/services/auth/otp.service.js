@@ -2,7 +2,8 @@ import prisma from "#lib/prisma";
 import nodemailer from 'nodemailer'
 import { generateOtp } from "#lib/otp";
 import { otpTemplate } from "../../templates/otp-email.js";
-import { response } from "express";
+import {resetPasswordTemplate} from "../../templates/resetTemplate.js"
+import crypto from 'crypto';
 
 export class OtpService{
     
@@ -43,6 +44,53 @@ export class OtpService{
         };
     }
 
+    //Fonction de validation de mail avec le lien 
+
+    static async generateResetLink(user) {
+        // Générer un token unique et aléatoire
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        
+        // Définir l'expiration (ex: 1 heure)
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+        // Enregistrer en base de données
+        // On nettoie les anciens tokens de cet utilisateur avant
+        await prisma.otpModel.deleteMany({ where: { email: user.email } });
+
+        await prisma.otpModel.create({
+            data: {
+                code: resetToken,
+                email: user.email,
+                expirateAt: expiresAt
+            }
+        });
+
+        //  Construire le lien vers ton FRONTEND
+        // Ne pointe PAS vers ton API, mais vers la page de ton site (React/Vue/Next)
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+        return resetLink;
+    }    
+
+
+    static async sendResetPasswordEmail(to, resetLink) {
+        // Préparation de l'email
+        const mailOptions = {
+            from: `"Support TonApp" <${process.env.EMAIL_USERNAME}>`,
+            to: to,
+            subject: "Réinitialisation de votre mot de passe",
+            html: resetPasswordTemplate(resetLink), // On injecte le template ici
+        };
+
+        // Envoi
+        try {
+            await this.transporter.sendMail(mailOptions);
+            return { success: true };
+        } catch (error) {
+            console.error("Erreur d'envoi d'email:", error);
+            throw new Error("Impossible d'envoyer l'email de réinitialisation.");
+        }
+    }
 
     //Fonction d'envoi de l'otp
     static async SendOtpEmail(email, code, time){
@@ -88,4 +136,6 @@ export class OtpService{
 
         return { success: true };
     }
+
+    
 }

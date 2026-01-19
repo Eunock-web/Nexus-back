@@ -5,6 +5,7 @@ import { registerSchema } from "#schemas/auth/register.schema";
 import { OtpService } from "#services/auth/otp.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
+import { loginSchema } from "#schemas/auth/login.schema";
 
 export class UserController {
 
@@ -124,7 +125,8 @@ export class UserController {
    */
   static async updatePassword(req, res){
     try{
-      const { email, password } = req.body;
+      const validatedData = validateData(loginSchema, req.body)
+      const { email, password } = validatedData;
 
       if(!password && !email){
         throw NotFoundException('Données non reçu');
@@ -141,7 +143,7 @@ export class UserController {
     }catch(error){
         res.json({
           success : false,
-          response : error.message
+          response : error
         })
     }
   }

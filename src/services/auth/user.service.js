@@ -3,6 +3,7 @@ import {  hashPassword, verifyPassword } from "#lib/password";
 import { ConflictException, UnauthorizedException, NotFoundException } from "#lib/exceptions";
 import { signToken } from "#lib/jwt";
 import { success } from "zod";
+import { TwoFactorService } from "./TwoFA.service";
 
 
 export class UserService {
@@ -64,12 +65,13 @@ export class UserService {
     }
 
     //Verification si la 2FA est activé
-    // const verifyTwoFA = user.twoFactorEnable;
-    // if(verifyTwoFA){
-    //      /**
-    //      * Implementation du systeme de demande du code TOTP
-    //      */
-    // }
+    const verifyTwoFA = user.twoFactorEnable;
+
+      if(verifyTwoFA){ 
+        //Generer un token afin de savoir la personne qui envoi le code otp apres(mesure de securité)
+
+        const token  = await signToken()
+      }
 
 
     //Generation des tokens 
@@ -92,7 +94,8 @@ export class UserService {
 
     return {
       accessToken,
-      refreshToken
+      refreshToken,
+      
     }
 
   }

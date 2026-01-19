@@ -52,49 +52,43 @@ export class UserService {
   }
 
   static async login(email, password, meta) {
-    //Verification de l'existance de l'utilisateur
-    const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ where: { email } });
+      
+      // Vérification sécurité de base
+      if (!user) throw new UnauthorizedException("Identifiants invalides");
 
-    //Verification si la 2FA est activé
-    // const verifyTwoFA = user.twoFactorEnable;
-    // if(verifyTwoFA){
-    //      /**
-    //      * Implementation du systeme de demande du code TOTP
-    //      */
-    // }
-    
-    //Verification du mot de passe 
-    const passwordConfirmation = await verifyPassword(user.password, password);
-    
-    if (!user || !passwordConfirmation) {
-      throw new UnauthorizedException("Identifiants invalides");
-    }
+      const passwordConfirmation = await verifyPassword(user.password, password);
+      if (!passwordConfirmation) throw new UnauthorizedException("Identifiants invalides");
 
-    //Generation des tokens 
-    const refreshToken = await signToken({sub : user.id});
-    const accessToken = await signToken(
-      {sub : user.id},
-      '15m'
-    );
-    const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    
-    await prisma.session.create({
-      data : {
-        userId :user.id,
-        refreshToken : refreshToken,
-        userAgent : meta.userAgent,
-        ipAddress : meta.ipAddress,
-        expirates : expirateAt
+      // CAS 2FA : Si activé, on génère juste un token temporaire
+      if (user.twoFactorEnable) {
+          // Token jose avec un flag "type: mfa" valide 5 minutes
+          const mfaToken = await signToken({ sub: user.id, type: 'mfa' }, '5m');
+          return { requires2FA: true, mfaToken };
       }
-    })
 
-    return {
-      accessToken,
-      refreshToken
-    }
-
+      // CAS NORMAL : On génère la session et les tokens finaux
+      return await this.finalizeLogin(user, meta);
   }
 
+  // Fonction utilitaire pour éviter la répétition (sera aussi utilisée par verify2FA)
+  static async finalizeLogin(user, meta) {
+      const refreshToken = await signToken({ sub: user.id });
+      const accessToken = await signToken({ sub: user.id }, '15m');
+      const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+      await prisma.session.create({
+          data: {
+              userId: user.id,
+              refreshToken: refreshToken,
+              userAgent: meta.userAgent,
+              ipAddress: meta.ipAddress,
+              expirates: expirateAt
+          }
+      });
+
+      return { accessToken, refreshToken };
+  }
 
 
   static async findAll() {

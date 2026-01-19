@@ -4,6 +4,7 @@ import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { loginSchema } from "#schemas/auth/login.schema";
 import { OtpService } from "#services/auth/otp.service";
+import prisma from "#lib/prisma";
 
 export class UserController {
 
@@ -34,40 +35,50 @@ export class UserController {
 
   //Fonction de Login
   static async login(req, res) {
-    const validatedData = validateData(loginSchema, req.body);
-    const { email, password } = validatedData;
-    
-    try{
-        //Recuperation du userAgent bruite
-        const useragent = req.headers['user-agent'] || '';
-    
-        // l'ip
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress; 
+      try {
+          const validatedData = validateData(loginSchema, req.body)
+          const { email, password } = validatedData;
+          const meta = { 
+              userAgent: req.headers['user-agent'] || '', 
+              ipAddress: req.ip 
+          };
 
-        //Donnée restante
-        const data = {
-            userAgent : useragent,
-            ipAdress : ip,
-        }
-        
-        const user = await UserService.login(email, password, data);
-    
-        return res.json({
-          success: true,
-          user : user,
-          userAgent : data.userAgent,
-          ipAdress : data.ipAdress,
-          response : "Login Successfully"
-        });
-    }catch(error){
-      console.error("Erreur lors du register:", error);
-    
-      return res.status(error.status || 500).json({
-        success: false,
-        response: error.message || "Une erreur est survenue lors de l'inscription.",
-      });
-    }  
-    
+          const result = await UserService.login(email, password, meta);
+
+          // --- CAS 2FA ---
+          if (result.requires2FA) {
+              return res.json({
+                  success: true,
+                  requires2FA: true,
+                  mfaToken: result.mfaToken, // On l'envoie dans le JSON
+                  message: "Veuillez entrer votre code de sécurité"
+              });
+          }
+
+          // --- CAS NORMAL ---
+          const cookieOptions = {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'strict',
+              maxAge: 15 * 60 * 1000,
+              path: '/'
+          };
+
+          // On place l'AccessToken dans le cookie
+          res.cookie('accessToken', result.accessToken, cookieOptions);
+
+          return res.json({
+              success: true,
+              message: "Connexion réussie",
+              refreshToken: result.refreshToken 
+          });
+
+      } catch (error) {
+          return res.status(error.status || 500).json({ 
+              success: false, 
+              message: error
+          });
+      }
   }
 
   static async getAll(req, res) {

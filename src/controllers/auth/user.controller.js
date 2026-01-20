@@ -7,7 +7,6 @@ import { TwoFactorService } from "#services/auth/TwoFA.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
 import { loginSchema } from "#schemas/auth/login.schema";
-import { response } from "express";
 
 export class UserController {
 
@@ -315,4 +314,27 @@ export class UserController {
         })
       }
   }
+
+  //Fonction pour la mise a jour du profile
+  static async UpdateProfile(req, res){
+    const userId = req.user.id;
+    const validatedData = validateData(registerSchema, req.body);
+
+    try{
+       const saveData = await UserService.updateProfile(userId,validatedData);
+       if(saveData.success == true){
+        return res.status(200).json({
+          success : true,
+          response : "Profile mis a jour avec success"
+        })
+       }
+    }catch(error){
+        return res.json({
+          success : false,
+          response : error
+        })
+    }
+  }
 }
+
+  

@@ -18,6 +18,7 @@ router.get("/reset-password/:token", (UserController.verifyResetToken))
 router.get("/:id", asyncHandler(UserController.getById));
 router.get("/revokeSection/:sessionId", asyncHandler(AuthMiddleware.isAuth, UserController.revokeSession));
 router.get("/revokeAllSection/", asyncHandler(AuthMiddleware.isAuth, UserController.revokeAllSession));
+router.get("/profileUser", asyncHandler(AuthMiddleware.isAuth, UserController.UserProfile));
 router.get("/getAllSection/", (AuthMiddleware.isAuth, UserController.getAllSection))
 router.get("/", asyncHandler(UserController.getAll));
 export default router;

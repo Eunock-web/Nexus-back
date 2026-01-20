@@ -183,4 +183,27 @@ export class UserService {
 
     return user;
   }
+  
+  //Fonction pour modifier les informations d'un utilisateur
+  static async updateProfile(userId, data){
+
+    const {email, firstname, lastname, password, avatarUrl} = data  
+
+    const passwordHash = await hashPassword(password);
+    await prisma.user.update({
+      where : {id: userId},
+      data : {
+        email,
+        firstname,
+        lastname,
+        password : passwordHash,
+        avatarUrl
+      }
+    })    
+
+    return {
+      success : true
+    }
+  }
 }
+

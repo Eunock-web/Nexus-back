@@ -72,7 +72,7 @@ export class UserService {
 
   // Fonction utilitaire pour éviter la répétition (sera aussi utilisée par verify2FA)
   static async finalizeLogin(user, meta) {
-      const refreshToken = await signToken({ sub: user.id });
+      const refreshToken = await signToken({ sub: user.id }, '7d');
       const accessToken = await signToken({ sub: user.id }, '15m');
       const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
@@ -123,11 +123,57 @@ export class UserService {
     }
   }
 
+  /**
+   * 
+   * @param {*} email 
+   */
+  static async RevokeAllSession(userid){
+    //Suppression de toutes les sessions en rapport avec l'userId donnée
+    await prisma.session.deleteMany({where : {userId : userid}})
+
+    return {
+      success : true
+    }
+
+  }
+
+  static async RevokeSession(userid, sessionId){
+    //Suppression de toutes les sessions de l'utilisateur en fonction de l'id de session
+
+    const sessiondel = await prisma.session.deleteMany({where : {id : sessionId, userId : userid}})
+    if(!sessiondel.count == 0){
+       throw new NotFoundException("Session introuvable");
+    }
+
+    return {
+      success : true
+    }
+
+  }
+
+  static async getAllSection(userId){
+    const userSession = await prisma.session.findMany({where : 
+      {userId : userId},
+      select: {
+            id: true,
+            userAgent: true,
+            ipAddress: true,
+            createdAt: true 
+        }
+    });
+
+    return {
+      success : true,
+      response : userSession
+    }
+  }
+
 
   static async findAll() {
     return prisma.user.findMany();
   }
 
+  //Fonction pour la recherche d'un utilisateur specifique (peut etre utilise pour le profile de l'utilisateur)
   static async findById(id) {
     const user = await prisma.user.findUnique({ where: { id } });
 
@@ -137,4 +183,27 @@ export class UserService {
 
     return user;
   }
+  
+  //Fonction pour modifier les informations d'un utilisateur
+  static async updateProfile(userId, data){
+
+    const {email, firstname, lastname, password, avatarUrl} = data  
+
+    const passwordHash = await hashPassword(password);
+    await prisma.user.update({
+      where : {id: userId},
+      data : {
+        email,
+        firstname,
+        lastname,
+        password : passwordHash,
+        avatarUrl
+      }
+    })    
+
+    return {
+      success : true
+    }
+  }
 }
+

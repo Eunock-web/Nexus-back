@@ -68,11 +68,11 @@ export class UserController {
           };
 
           // On place l'AccessToken dans le cookie
-          res.cookie('accessToken', result.accessToken, cookieOptions);
-
+          res.cookie('refreshToken', result.refreshToken, cookieOptions);
           return res.json({
               success: true,
               message: "Connexion réussie",
+              accessToken : result.accessToken,
               refreshToken: result.refreshToken 
           });
 
@@ -279,6 +279,63 @@ export class UserController {
     });
   }
 
+  static async revokeSession(req, res){
+    const {idSession} = req.params;
+    const userId = req.user.id;
+    try {
+        await UserService.RevokeSession(userId, idSession);
+        
+        return res.json({
+            success: true,
+            response: "Session spécifique supprimée avec succès"
+        });
+    } catch (error) {
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message
+        });
+    }
+  }
+  
+  static async revokeAllSession(req, res){
+    const userId = req.user.id;
+
+    try {
+        await UserService.RevokeAllSession(userId);
+        
+        // On peut aussi vider le cookie de l'utilisateur actuel
+        res.clearCookie('accessToken');
+        
+        return res.json({
+            success: true,
+            response: "Toutes les sessions ont été révoquées"
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  
+  static async getAllSection(req, res){
+    const userId = req.user.id;
+    try{
+      const userSession = await UserService.getAllSection(userId);
+  
+      if(userSession.success == true){
+        return res.json({
+          success : true,
+          response : userSession.response
+        })
+      }
+    }catch(error){
+      return res.json({
+        success : false,
+        response : error
+      })
+    }
+  }
+
+  //Fonction pour la recherche d'un utilisateur specifique
   static async getById(req, res) {
     const user = await UserService.findById(parseInt(req.params.id));
     res.json({
@@ -286,4 +343,52 @@ export class UserController {
       user: UserDto.transform(user),
     });
   }
+
+  //Fonction pour le profile utilisateur
+  static async UserProfile(req, res){
+      const userId = req.user.id; 
+      try{
+          const user = await UserService.findById(parseInt(userId));
+          res.json({
+            success: true,
+            user: UserDto.transform(user),
+          });
+      }catch(error){
+        res.json({
+          success : false,
+          response : error
+        })
+      }
+  }
+
+  //Fonction pour la mise a jour du profile
+  static async UpdateProfile(req, res){
+    const userId = req.user.id;
+    const validatedData = validateData(registerSchema, req.body);
+
+    try{
+       const saveData = await UserService.updateProfile(userId,validatedData);
+       if(saveData.success == true){
+        return res.status(200).json({
+          success : true,
+          response : "Profile mis a jour avec success"
+        })
+       }
+    }catch(error){
+        return res.json({
+          success : false,
+          response : error
+        })
+    }
+  }
+  
+  static async getAll(req, res) {
+    const users = await UserService.findAll();
+    res.json({
+      success: true,
+      users: UserDto.transform(users),
+    });
+  }
 }
+
+  

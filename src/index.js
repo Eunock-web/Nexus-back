@@ -9,6 +9,7 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const PORT = process.env.PORT || 3001;

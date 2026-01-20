@@ -76,16 +76,16 @@ export class UserController {
   //Fonction pour le logout
   static async logout(req, res){
     //Recuperation de l'accessToken dans le cookie
-    const accessToken = req.cookiees.accessToken;
+    const refreshToken = req.cookiees.refreshToken;
 
 
     try{
       //Decoder l'accesstoken afin de recuperer l'id de l'utilisateur 
       const secret  = new TextEncoder().encode(process.env.JWT_SECRET);
 
-      if(accessToken){
+      if(refreshToken){
         //Verification et decodage du token
-        const payload = decodeJwt(accessToken)
+        const payload = decodeJwt(refreshToken)
   
         //Recuperation de l'id de l'utilisateur
         const userId = payload.sub;

@@ -72,7 +72,7 @@ export class UserService {
 
   // Fonction utilitaire pour éviter la répétition (sera aussi utilisée par verify2FA)
   static async finalizeLogin(user, meta) {
-      const refreshToken = await signToken({ sub: user.id });
+      const refreshToken = await signToken({ sub: user.id }, '7d');
       const accessToken = await signToken({ sub: user.id }, '15m');
       const expirateAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 

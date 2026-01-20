@@ -25,7 +25,7 @@ export class AuthMiddlware{
             // Injecter les infos de l'utilisateur dans 'req' pour les routes suivantes
             req.user = {
                 id: payload.sub,
-                email: payload.email
+                // email: payload.email
             };
 
             next(); 

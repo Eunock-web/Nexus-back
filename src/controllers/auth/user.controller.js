@@ -225,6 +225,43 @@ export class UserController {
       }
   }
 
+  
+  static async revokeSession(req, res){
+    const {idSession} = req.params;
+    const userId = req.user.id;
+    try {
+        await UserService.RevokeSession(userId, idSession);
+        
+        return res.json({
+            success: true,
+            response: "Session spécifique supprimée avec succès"
+        });
+    } catch (error) {
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message
+        });
+    }
+  }
+  
+  static async revokeAllSession(req, res){
+    const userId = req.user.id;
+
+    try {
+        await UserService.RevokeAllSession(userId);
+        
+        // On peut aussi vider le cookie de l'utilisateur actuel
+        res.clearCookie('accessToken');
+        
+        return res.json({
+            success: true,
+            response: "Toutes les sessions ont été révoquées"
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
   static async getAll(req, res) {
     const users = await UserService.findAll();
     res.json({

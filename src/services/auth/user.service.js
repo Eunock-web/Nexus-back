@@ -123,10 +123,43 @@ export class UserService {
     }
   }
 
+  /**
+   * 
+   * @param {*} email 
+   */
+  static async RevokeAllSession(userid){
+    //Suppression de toutes les sessions en rapport avec l'userId donnée
+    await prisma.session.deleteMany({where : {userId : userid}})
 
-  static async RevokeSession(email){
+    return {
+      success : true
+    }
 
   }
+
+  static async RevokeSession(userid, sessionId){
+    //Suppression de toutes les sessions de l'utilisateur en fonction de l'id de session
+
+    const sessiondel = await prisma.session.deleteMany({where : {id : sessionId, userId : userid}})
+    if(!sessiondel.count == 0){
+       throw new NotFoundException("Session introuvable");
+    }
+
+    return {
+      success : true
+    }
+
+  }
+
+  static async getAllSection(userId){
+    const userSession = await prisma.session.findMany({where : {userId : userId}});
+
+    return {
+      success : true,
+      response : userSession
+    }
+  }
+
 
   static async findAll() {
     return prisma.user.findMany();

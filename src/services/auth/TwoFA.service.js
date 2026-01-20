@@ -1,36 +1,36 @@
-import { authenticator } from 'otplib';
+import { TOTP } from 'otplib';
 
-export class TwoFactorService{
-
+export class TwoFactorService {
     /**
      * Génère un secret et l'URL pour Google Authenticator
      */
-    static  generateSecret(email){
-        const secretKey = authenticator.generateSecretKey();
+    static generateSecretKey(email) {
+        // .generateSecret() est la méthode correcte
+        const secret = TOTP.generateSecret(); 
 
-        //Generation l'URI que le front utilisera pour generation du QRCODE
-        const otpauthurl = authenticator.keyuri(
+        const otpauthUrl = TOTP.keyuri(
             email,
             "Nexus",
-            secretKey
-        )
+            secret
+        );
 
         return {
-            secretKey,
-            otpauthurl
-        }
+            secret,
+            otpauthUrl
+        };
     }
 
     /**
-     * Cette fonction verifie la validiter de l'otp saisi par l'utilisateur
+     * Vérifie la validité de l'otp saisi par l'utilisateur
      */
-
-    static VerifyOtp(token, secret) {
-        return authenticator.verify({
+    static verifyOtp(token, secret) {
+        try {
+            return TOTP.verify({
                 token,
                 secret
-        });
-        
+            });
+        } catch (err) {
+            return false;
+        }
     }
-
 }

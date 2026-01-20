@@ -3,6 +3,7 @@ import { UserDto } from "#dto/user.dto";
 import { validateData } from "#lib/validate";
 import { registerSchema } from "#schemas/auth/register.schema";
 import { OtpService } from "#services/auth/otp.service";
+import { TwoFactorService } from "#services/auth/TwoFA.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
 import { loginSchema } from "#schemas/auth/login.schema";
@@ -204,7 +205,7 @@ export class UserController {
           const user = await prisma.user.findUnique({ where: { id: userId } });
 
           // Générer le secret et l'URL
-          const { secret, otpauthUrl } = TwoFactorService.generateSecret(user.email);
+          const { secret, otpauthUrl } = TwoFactorService.generateSecretKey(user.email);
 
           //  Enregistrer le secret temporairement dans le profil de l'user
           await prisma.user.update({
@@ -223,7 +224,7 @@ export class UserController {
           return res.status(500).json({ success: false, message: error.message });
       }
   }
-  
+
   static async getAll(req, res) {
     const users = await UserService.findAll();
     res.json({

@@ -13,6 +13,8 @@ router.post("/forgot-password", asyncHandler(UserController.forgotPassword));
 router.post("/update-password", asyncHandler(UserController.updatePassword));
 router.post("/logout", asyncHandler(AuthMiddleware.isAuth, UserController.logout));
 router.post("/updateProfile", asyncHandler(AuthMiddleware.isAuth, UserController.UpdateProfile))
+router.post("/2fa/setup", asyncHandler(AuthMiddleware.isAuth, UserController.setup2FA))
+router.post("/2fa/verify", asyncHandler( OtpController.verify2FA))
 
 
 // Consultation de la liste ou d'un utilisateur

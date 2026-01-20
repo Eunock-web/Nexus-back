@@ -7,6 +7,7 @@ import { TwoFactorService } from "#services/auth/TwoFA.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
 import { loginSchema } from "#schemas/auth/login.schema";
+import { decodeJwt, jwtVerify } from "jose";
 
 export class UserController {
 
@@ -224,6 +225,51 @@ export class UserController {
           return res.status(500).json({ success: false, message: error.message });
       }
   }
+
+
+  //Fonction pour le logout
+  static async logout(req, res){
+    //Recuperation de l'accessToken dans le cookie
+    const refreshToken = req.cookiees.refreshToken;
+
+
+    try{
+      //Decoder l'accesstoken afin de recuperer l'id de l'utilisateur 
+      const secret  = new TextEncoder().encode(process.env.JWT_SECRET);
+
+      if(refreshToken){
+        //Verification et decodage du token
+        const payload = decodeJwt(refreshToken)
+  
+        //Recuperation de l'id de l'utilisateur
+        const userId = payload.sub;
+  
+        //Suppression du token dans la table session 
+        await prisma.session.deleteMany({where : {userId : userId}})
+  
+        }
+
+    }catch(error){
+        // Même en cas d'erreur (ex: session déjà supprimée), 
+        // on veut que l'utilisateur soit déconnecté visuellement
+        res.clearCookie('accessToken');
+        return res.status(500).json({ success: false, message: "Erreur lors de la déconnexion" });
+    }finally{ 
+        //suppression des tokens des cookies
+        res.clearCookie('accessToken', {
+          httpOnly : true,
+          secure : process.env.NODE_ENV === 'production',
+          sameSite : 'strict',
+          path : '/'
+        });
+
+        return res.json({
+          success : true,
+          response : "Deconnexion réussie"
+        });
+    }
+  }
+
 
   static async getAll(req, res) {
     const users = await UserService.findAll();

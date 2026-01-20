@@ -14,5 +14,6 @@ router.post("/logout", asyncHandler(AuthMiddleware.isAuth, UserController.logout
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/", asyncHandler(UserController.getAll));
+router.get("/refresh", asyncHandler(AuthMiddleware.isAuth, UserController.refresh));
 router.get("/:id", asyncHandler(UserController.getById));
 export default router;

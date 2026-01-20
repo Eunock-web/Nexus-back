@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 export class AuthMiddleware{
     static async isAuth(req, res, next){
         //Recuperation du token depuis le cookie
-        const token = req.cookies.accessToken;
+        const token = req.cookies.refreshToken;
 
         if(!token){
             return res.status(401).json({ message: "Accès refusé. Token manquant." });

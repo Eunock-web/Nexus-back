@@ -67,11 +67,11 @@ export class UserController {
           };
 
           // On place l'AccessToken dans le cookie
-          res.cookie('accessToken', result.accessToken, cookieOptions);
-
+          res.cookie('refreshToken', result.refreshToken, cookieOptions);
           return res.json({
               success: true,
               message: "Connexion réussie",
+              accessToken : result.accessToken,
               refreshToken: result.refreshToken 
           });
 
@@ -262,14 +262,7 @@ export class UserController {
     }
   }
 
-  static async getAll(req, res) {
-    const users = await UserService.findAll();
-    res.json({
-      success: true,
-      users: UserDto.transform(users),
-    });
-  }
-
+  
   static async getAllSection(req, res){
     const userId = req.user.id;
     try{
@@ -334,6 +327,14 @@ export class UserController {
           response : error
         })
     }
+  }
+  
+  static async getAll(req, res) {
+    const users = await UserService.findAll();
+    res.json({
+      success: true,
+      users: UserDto.transform(users),
+    });
   }
 }
 

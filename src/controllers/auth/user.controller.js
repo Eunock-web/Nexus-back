@@ -199,7 +199,7 @@ export class UserController {
   }
 
 
-  //Fonction pour la generation des cle pour la 2FA
+  //Fonction pour la generation des cle p our la 2FA
   static async setup2FA(req, res) {
       try {
           const userId = req.user.id; 
@@ -252,11 +252,11 @@ export class UserController {
     }catch(error){
         // Même en cas d'erreur (ex: session déjà supprimée), 
         // on veut que l'utilisateur soit déconnecté visuellement
-        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
         return res.status(500).json({ success: false, message: "Erreur lors de la déconnexion" });
     }finally{ 
         //suppression des tokens des cookies
-        res.clearCookie('accessToken', {
+        res.clearCookie('refreshToken', {
           httpOnly : true,
           secure : process.env.NODE_ENV === 'production',
           sameSite : 'strict',

@@ -1,7 +1,7 @@
 import { jwtVerify } from "jose";
 
 
-export class AuthMiddlware{
+export class AuthMiddleware{
     static async isAuth(req, res, next){
         //Recuperation du token depuis le cookie
         const token = req.cookies.accessToken;

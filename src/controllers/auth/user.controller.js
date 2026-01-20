@@ -270,6 +270,25 @@ export class UserController {
     });
   }
 
+  static async getAllSection(req, res){
+    const userId = req.user.id;
+    try{
+      const userSession = await UserService.getAllSection(userId);
+  
+      if(userSession.success == true){
+        return res.json({
+          success : true,
+          response : userSession.response
+        })
+      }
+    }catch(error){
+      return res.json({
+        success : false,
+        response : error
+      })
+    }
+  }
+
   static async getById(req, res) {
     const user = await UserService.findById(parseInt(req.params.id));
     res.json({

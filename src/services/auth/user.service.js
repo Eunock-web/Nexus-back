@@ -124,6 +124,10 @@ export class UserService {
   }
 
 
+  static async RevokeSession(email){
+
+  }
+
   static async findAll() {
     return prisma.user.findMany();
   }

@@ -152,7 +152,15 @@ export class UserService {
   }
 
   static async getAllSection(userId){
-    const userSession = await prisma.session.findMany({where : {userId : userId}});
+    const userSession = await prisma.session.findMany({where : 
+      {userId : userId},
+      select: {
+            id: true,
+            userAgent: true,
+            ipAddress: true,
+            createdAt: true 
+        }
+    });
 
     return {
       success : true,

@@ -3,18 +3,19 @@ import { UserController } from "#controllers/auth/user.controller";
 import { asyncHandler } from "#lib/async-handler";
 import { OtpController } from "#controllers/auth/otp.controller";
 import { AuthMiddleware } from "#middlewares/auth.middleware";
+import { authLimiter } from "../../config/auth.limiter.js";
 const router = Router();
 
 // Inscription et Connexion
-router.post("/register", asyncHandler(UserController.register));
-router.post("/login", asyncHandler(UserController.login));
+router.post("/register", asyncHandler( authLimiter, UserController.register));
+router.post("/login", asyncHandler(authLimiter,UserController.login));
 router.post("/verify-email", asyncHandler(OtpController.VerifyEmail));
 router.post("/forgot-password", asyncHandler(UserController.forgotPassword));
 router.post("/update-password", asyncHandler(UserController.updatePassword));
 router.post("/logout", asyncHandler(AuthMiddleware.isAuth, UserController.logout));
 router.post("/updateProfile", asyncHandler(AuthMiddleware.isAuth, UserController.UpdateProfile))
 router.post("/2fa/setup", asyncHandler(AuthMiddleware.isAuth, UserController.setup2FA))
-router.post("/2fa/verify", asyncHandler( OtpController.verify2FA))
+router.post("/2fa/verify", asyncHandler(authLimiter, OtpController.verify2FA))
 
 
 // Consultation de la liste ou d'un utilisateur

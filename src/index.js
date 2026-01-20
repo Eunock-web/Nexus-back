@@ -9,17 +9,18 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
-import swaggerUi from 'swagger-ui-express';
-import { specs } from './lib/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(cookieParser());
 
 // Middlewares
 app.use(helmet());
 app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
+
 
 // Routes
 app.get("/", (req, res) => {

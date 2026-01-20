@@ -270,6 +270,50 @@ export class UserController {
     }
   }
 
+  //Fonction pour le refreshToken
+  static async refresh(req, res) {
+      try {
+          // Récupérer le RefreshToken depuis les cookies
+          const refreshToken = req.cookies.refreshToken;
+
+          if (!refreshToken) throw new Error("Non authentifié");
+
+          // Vérifier le token et trouver la session en BDD
+          const payload = await verifyToken(refreshToken);
+          const session = await prisma.session.findUnique({
+              where: { refreshToken },
+              include: { user: true }
+          });
+
+          if (!session || session.expirates < new Date()) {
+              throw new Error("Session expirée");
+          }
+
+          // Générer un nouvel AccessToken
+          // On peut aussi faire une "Rotation" du RefreshToken ici pour plus de sécurité
+          const newAccessToken = await signToken({ sub: session.userId, isFullAuth: true }, '15m');
+          const newRefreshToken = await signToken({ sub: session.userId }, '7d');
+
+          //  Mettre à jour la session en BDD (Rotation)
+          await prisma.session.update({
+              where: { id: session.id },
+              data: { refreshToken: newRefreshToken }
+          });
+
+          // Renvoyer le nouveau RefreshToken dans le cookie et l'Access en JSON
+          res.cookie('refreshToken', newRefreshToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production', 
+              sameSite: 'Strict',
+              maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
+          });
+
+          return res.json({ accessToken: newAccessToken });
+
+      } catch (error) {
+          return res.status(401).json({ message: "Veuillez vous reconnecter" });
+      }
+  }
 
   static async getAll(req, res) {
     const users = await UserService.findAll();

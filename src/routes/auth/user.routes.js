@@ -17,6 +17,8 @@ router.post("/updateProfile", asyncHandler(AuthMiddleware.isAuth, UserController
 
 // Consultation de la liste ou d'un utilisateur
 router.get("/reset-password/:token", (UserController.verifyResetToken))
+router.get("/", asyncHandler(UserController.getAll));
+router.get("/refresh", asyncHandler(AuthMiddleware.isAuth, UserController.refresh));
 router.get("/:id", asyncHandler(UserController.getById));
 router.get("/revokeSection/:sessionId", asyncHandler(AuthMiddleware.isAuth, UserController.revokeSession));
 router.get("/revokeAllSection/", asyncHandler(AuthMiddleware.isAuth, UserController.revokeAllSession));

@@ -7,6 +7,7 @@ import { TwoFactorService } from "#services/auth/TwoFA.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
 import { loginSchema } from "#schemas/auth/login.schema";
+import { response } from "express";
 
 export class UserController {
 
@@ -289,11 +290,29 @@ export class UserController {
     }
   }
 
+  //Fonction pour la recherche d'un utilisateur specifique
   static async getById(req, res) {
     const user = await UserService.findById(parseInt(req.params.id));
     res.json({
       success: true,
       user: UserDto.transform(user),
     });
+  }
+
+  //Fonction pour le profile utilisateur
+  static async UserProfile(req, res){
+      const userId = req.user.id; 
+      try{
+          const user = await UserService.findById(parseInt(userId));
+          res.json({
+            success: true,
+            user: UserDto.transform(user),
+          });
+      }catch(error){
+        res.json({
+          success : false,
+          response : error
+        })
+      }
   }
 }

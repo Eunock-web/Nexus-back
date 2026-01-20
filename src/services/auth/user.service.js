@@ -173,6 +173,7 @@ export class UserService {
     return prisma.user.findMany();
   }
 
+  //Fonction pour la recherche d'un utilisateur specifique (peut etre utilise pour le profile de l'utilisateur)
   static async findById(id) {
     const user = await prisma.user.findUnique({ where: { id } });
 

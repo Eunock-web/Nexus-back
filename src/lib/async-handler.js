@@ -4,3 +4,7 @@ export function asyncHandler(fn) {
   };
 }
 
+export function chainMiddlewares(...middlewares) {
+  return middlewares;
+}
+

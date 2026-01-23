@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   // output   = "../generated/prisma"
 }
 
@@ -31,6 +31,7 @@ model User {
   //relation
   sessions Session[]
   oauths OAuth[]
+  otpModels OtpModel[]
 }
 
 
@@ -54,11 +55,23 @@ model Session{
 model OAuth{
   id Int @id @default(autoincrement())
   userId Int
-  type String 
+  type String
   provider String
   providerAccountId String
 
   //relation
   user  User @relation( fields: [userId], references: [id], onDelete: Cascade)
    @@unique([provider, providerAccountId])
+}
+
+//Otp Model
+model OtpModel{
+  id Int @id @default(autoincrement())
+  email String @unique
+  code String @unique
+  expirateAt DateTime
+  createdAt DateTime @default(now())
+
+  //relation
+  user User @relation(fields: [email], references: [email], onDelete: Cascade)
 }

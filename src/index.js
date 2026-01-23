@@ -9,6 +9,7 @@ import { logger, httpLogger } from "#lib/logger";
 import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
+import oauthRouter from "#routes/auth/oauth.routes";
 import cookieParser from 'cookie-parser';
 
 const app = express();
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 // app.use("/users",swaggerUi.serve, swaggerUi.setup(specs), userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/", oauthRouter); // Routes OAuth
 
 // 404 handler
 app.use(notFoundHandler);

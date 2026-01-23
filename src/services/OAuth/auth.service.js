@@ -21,7 +21,7 @@ export class OAuthService{
     }
 
     //Fonction pour la gestion du callBack google
-    static async handleGoogleAuth(code){
+    static async handleGoogleAuth(code, meta){
         //Echange le code dans l'url contre les tokens
         const {tokens} = await client.getToken(code);
         client.setCredentials(tokens);
@@ -30,6 +30,24 @@ export class OAuthService{
         const ticket = await client.verifyIdToken({
             idToken : tokens.id_token,
             audience : process.env.GOOGLE_ID_CLIENT
-        })
+        });
+
+        //Extraire les informations de l'utilisateur depuis le ticket
+        const payload = ticket.getPayload();
+        const { email, name, picture, sub } = payload;
+
+        //Importer le service utilisateur pour gérer la création/récupération
+        const { UserService } = await import('../auth/user.service.js');
+        
+        //Utiliser la méthode de UserService pour trouver ou créer l'utilisateur OAuth
+        const result = await UserService.findOrCreateOAuthUser({
+            email,
+            name,
+            picture,
+            provider: 'google',
+            providerAccountId: sub
+        }, meta);
+
+        return result;
     }
 }

@@ -205,5 +205,72 @@ export class UserService {
       success : true
     }
   }
+
+  /**
+   * Trouve ou crée un utilisateur via OAuth (Google, Facebook, etc.)
+   * Crée automatiquement un utilisateur s'il n'existe pas
+   * @param {Object} oAuthData - Les données provenant du provider OAuth
+   * @param {String} oAuthData.email - Email de l'utilisateur
+   * @param {String} oAuthData.name - Nom complet de l'utilisateur
+   * @param {String} oAuthData.picture - URL de l'avatar
+   * @param {String} oAuthData.provider - Nom du provider (google, facebook, etc.)
+   * @param {String} oAuthData.providerAccountId - ID unique du compte chez le provider
+   * @param {Object} meta - Métadonnées de la session (userAgent, ipAddress)
+   * @returns {Object} - Les tokens (accessToken, refreshToken)
+   */
+  static async findOrCreateOAuthUser(oAuthData, meta) {
+    const { email, name, picture, provider, providerAccountId } = oAuthData;
+
+    try {
+      // Chercher l'utilisateur par email
+      let user = await prisma.user.findUnique({ where: { email } });
+
+      // Si l'utilisateur n'existe pas, le créer
+      if (!user) {
+        // Séparer le nom et le prénom
+        const nameParts = name ? name.split(' ') : ['', ''];
+        const firstname = nameParts[0] || '';
+        const lastname = nameParts.slice(1).join(' ') || '';
+
+        user = await prisma.user.create({
+          data: {
+            email,
+            firstname,
+            lastname,
+            avatarUrl: picture,
+            isVerified: true, // Les utilisateurs OAuth sont directement vérifiés
+            password: null // Pas de mot de passe pour les utilisateurs OAuth
+          }
+        });
+      }
+
+      // Vérifier si le compte OAuth est déjà lié
+      const existingOAuth = await prisma.oAuth.findUnique({
+        where: {
+          provider_providerAccountId: {
+            provider,
+            providerAccountId
+          }
+        }
+      });
+
+      // Si ce n'est pas lié, créer la liaison OAuth
+      if (!existingOAuth) {
+        await prisma.oAuth.create({
+          data: {
+            userId: user.id,
+            provider,
+            providerAccountId
+          }
+        });
+      }
+
+      // Finaliser la connexion (créer la session et retourner les tokens)
+      return await this.finalizeLogin(user, meta);
+
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 

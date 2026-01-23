@@ -22,7 +22,6 @@ export class UserController {
     
         res.status(201).json({
           success: true,
-          email :  user.email,
           response : "Inscription éffectué avec succes",
           user: UserDto.transform(user),
         });

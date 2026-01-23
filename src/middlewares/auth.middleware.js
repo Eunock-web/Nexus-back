@@ -12,7 +12,7 @@ export class AuthMiddleware{
 
         try{
             //Encodage de la cle secrete pour la cerification du payload
-            const secret = new TextEncoder().encode(process.JWT_SECRET);
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
             //Verification du token
             const {payload} = await jwtVerify(token, secret);

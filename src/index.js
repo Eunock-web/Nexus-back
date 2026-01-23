@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 // app.use("/users",swaggerUi.serve, swaggerUi.setup(specs), userRouter);
 app.use("/", userRouter); // Pour garder /register et /login à la racine
-app.use("/", oauthRouter); // Routes OAuth
+app.use("/auth", oauthRouter); // Routes OAuth
 
 // 404 handler
 app.use(notFoundHandler);

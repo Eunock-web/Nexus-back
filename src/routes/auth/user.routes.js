@@ -4,6 +4,7 @@ import { asyncHandler } from "#lib/async-handler";
 import { OtpController } from "#controllers/auth/otp.controller";
 import { AuthMiddleware } from "#middlewares/auth.middleware";
 import { authLimiter } from "../../config/auth.limiter.js";
+import { OAuthController } from "#controllers/OAuth/auth.controller";
 const router = Router();
 
 // Inscription et Connexion
@@ -19,6 +20,7 @@ router.post("/2fa/verify", asyncHandler(authLimiter, OtpController.verify2FA))
 
 
 // Consultation de la liste ou d'un utilisateur
+router.get("/OAuth", (OAuthController))
 router.get("/reset-password/:token", (UserController.verifyResetToken))
 router.get("/", asyncHandler(UserController.getAll));
 router.get("/refresh", asyncHandler(AuthMiddleware.isAuth, UserController.refresh));

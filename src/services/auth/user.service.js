@@ -259,6 +259,7 @@ export class UserService {
         await prisma.oAuth.create({
           data: {
             userId: user.id,
+            type: "oauth",
             provider,
             providerAccountId
           }

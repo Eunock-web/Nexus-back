@@ -55,6 +55,7 @@ model Session{
 model OAuth{
   id Int @id @default(autoincrement())
   userId Int
+  type String
   provider String
   providerAccountId String
 

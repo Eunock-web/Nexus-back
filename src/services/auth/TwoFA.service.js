@@ -1,3 +1,5 @@
+import { NotFoundException } from '#lib/exceptions';
+import prisma from '#lib/prisma';
 import { TOTP } from 'otplib';
 
 export class TwoFactorService {
@@ -31,6 +33,31 @@ export class TwoFactorService {
             });
         } catch (err) {
             return false;
+        }
+    }
+
+    /**
+     * Fonction pour desactiver la twoFa
+     */
+    static async desable(userId){
+        //Chercher l'utilisateur
+        const user = await prisma.user.findUnique({where: {id: userId}});
+
+        if(!user){
+            throw NotFoundException("Utilisateur inexisant");
+        }
+
+        //Changer les champs de la 2FA dans la table user
+        const updateData = await prisma.user.update({
+            where : {id : user.id},
+            data : {
+                twoFactorEnable : false,
+                twoFactorSecret : ""
+            }
+        })
+
+        return {
+            success : true,
         }
     }
 }

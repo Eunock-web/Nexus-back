@@ -226,6 +226,31 @@ export class UserController {
       }
   }
 
+  //Fonction pour la desactivation de la TwoFa
+  static async disable(req, res){
+    try{
+      const userId = req.user.id;
+
+      if(!userId){
+            throw NotFoundException("Utilisateur inexisant");
+      }
+
+      const isDesable = await TwoFactorService.desable(userId);
+
+      if(isDesable.success){
+        return res.json({
+          success : true,
+          response : "2FA désactiver avec success"
+        })
+      }
+    }catch(error){
+      res.status(error.status || 500).json({
+        success : false,
+        response : error.message || "Une erreur est survenue lors de la desactivation"
+      })
+    }
+  }
+
 
   //Fonction pour le logout
   static async logout(req, res){

@@ -39,25 +39,28 @@ export class TwoFactorService {
     /**
      * Fonction pour desactiver la twoFa
      */
-    static async desable(userId){
-        //Chercher l'utilisateur
-        const user = await prisma.user.findUnique({where: {id: userId}});
+    static async desable(userId) {
+        // Vérifier si l'utilisateur existe
+        const user = await prisma.user.findUnique({ where: { id: userId } });
 
-        if(!user){
-            throw NotFoundException("Utilisateur inexisant");
+        if (!user) {
+            throw new NotFoundException("Utilisateur inexistant");
         }
 
-        //Changer les champs de la 2FA dans la table user
-        const updateData = await prisma.user.update({
-            where : {id : user.id},
-            data : {
-                twoFactorEnable : false,
-                twoFactorSecret : ""
+        // Vérifier si la 2FA n'est pas déjà désactivée (évite des requêtes inutiles)
+        if (!user.twoFactorEnable) {
+            throw new BadRequestException("La 2FA est déjà désactivée.");
+        }
+
+        // Mise à jour atomique
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                twoFactorEnable: false,
+                twoFactorSecret: null // Utilise null au lieu d'une chaîne vide si ton schéma le permet
             }
-        })
+        });
 
-        return {
-            success : true,
-        }
+        return { success: true };
     }
 }

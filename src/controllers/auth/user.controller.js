@@ -229,20 +229,17 @@ export class UserController {
   //Fonction pour la desactivation de la TwoFa
   static async disable(req, res){
     try{
-      const userId = req.user.id;
+        const userId = req.user.id;
 
-      if(!userId){
-            throw NotFoundException("Utilisateur inexisant");
-      }
+        const {code} = req.body;
+        await TwoFactorService.verifyOtp(code);
 
-      const isDesable = await TwoFactorService.desable(userId);
+        await TwoFactorService.desable(userId);
 
-      if(isDesable.success){
         return res.json({
           success : true,
-          response : "2FA désactiver avec success"
-        })
-      }
+          response : "La double authentification a été désactivée avec succès."
+        });
     }catch(error){
       res.status(error.status || 500).json({
         success : false,

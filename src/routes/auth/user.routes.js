@@ -429,6 +429,47 @@ router.post("/2fa/verify", authLimiter, asyncHandler(OtpController.verify2FA));
 
 /**
  * @swagger
+ * /2fa/disable:
+ *   post:
+ *     tags:
+ *       - Authentification à Deux Facteurs (2FA)
+ *     summary: desactiver la double authentification
+ *     description: Demande a l'utilisateur de saisir le code de l'otp lorsqu'il clique sur le bouton de desactivation de la 2FA
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Desactivation avec success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Desactivation réussie"
+ *       400:
+ *         description: Code invalide ou expiré
+ *       429:
+ *         description: Trop de tentatives
+ */
+router.post("/2fa/disable", authLimiter, asyncHandler(UserController.disable));
+
+/**
+ * @swagger
  * /:
  *   get:
  *     tags:

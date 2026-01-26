@@ -22,8 +22,9 @@ export class OtpController{
                 })
             }
         }catch (error) {
-            return res.status(error.status || 400).json({
+            return res.status(error.status || 500).json({
                 success: false,
+                error : error.name,
                 message: error.message || "Erreur de validation"
             });
          }

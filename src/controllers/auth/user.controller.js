@@ -23,6 +23,7 @@ export class UserController {
         res.status(201).json({
           success: true,
           response : "Inscription éffectué avec succes",
+          otpResponse : "Un code de validation vous a ete envoyer",
           user: UserDto.transform(user),
         });
     }catch(error){
@@ -78,7 +79,7 @@ export class UserController {
       } catch (error) {
           return res.status(error.status || 500).json({ 
               success: false, 
-              message: error
+              message: error.message
           });
       }
   }
@@ -225,12 +226,40 @@ export class UserController {
       }
   }
 
+  //Fonction pour la desactivation de la TwoFa
+  static async disable(req, res){
+    try{
+        const userId = req.user.id;
+
+        const {code} = req.body;
+        await TwoFactorService.verifyOtp(code);
+
+        await TwoFactorService.desable(userId);
+
+        return res.json({
+          success : true,
+          response : "La double authentification a été désactivée avec succès."
+        });
+    }catch(error){
+      res.status(error.status || 500).json({
+        success : false,
+        response : error.message || "Une erreur est survenue lors de la desactivation"
+      })
+    }
+  }
+
 
   //Fonction pour le logout
   static async logout(req, res){
     //Recuperation de l'accessToken dans le cookie
-    const refreshToken = req.cookiees.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
+    if (!refreshToken) {
+        return res.status(401).json({ 
+            success: false, 
+            message: "Aucun cookie trouvé, session expirée." 
+        });
+    }
 
     try{
       //Decoder l'accesstoken afin de recuperer l'id de l'utilisateur 

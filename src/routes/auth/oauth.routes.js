@@ -18,7 +18,7 @@ const oauthRouter = express.Router();
  *       500:
  *         description: Erreur lors de la génération du lien d'authentification
  */
-oauthRouter.get('/auth/google/redirect', asyncHandler(OAuthController.redirect));
+oauthRouter.get('/google/redirect', asyncHandler(OAuthController.redirect));
 
 /**
  * @swagger
@@ -65,7 +65,7 @@ oauthRouter.get('/auth/google/redirect', asyncHandler(OAuthController.redirect))
  *       500:
  *         description: Erreur lors du traitement du callback
  */
-oauthRouter.get('/auth/google/callback', asyncHandler(OAuthController.callback));
+oauthRouter.get('/google/callback', asyncHandler(OAuthController.callback));
 
 
 /**
@@ -82,7 +82,7 @@ oauthRouter.get('/auth/google/callback', asyncHandler(OAuthController.callback))
  *       500:
  *         description: Erreur lors de la génération du lien d'authentification
  */
-oauthRouter.get('/auth/github/redirect', asyncHandler(OAuthController.githubRedirect));
+oauthRouter.get('/github/redirect', asyncHandler(OAuthController.githubRedirect));
 
 /**
  * @swagger
@@ -128,6 +128,6 @@ oauthRouter.get('/auth/github/redirect', asyncHandler(OAuthController.githubRedi
  *       500:
  *         description: Erreur lors du traitement du callback GitHub
  */
-oauthRouter.get('/auth/github/callback', asyncHandler(OAuthController.githubCallback));
+oauthRouter.get('/github/callback', asyncHandler(OAuthController.githubCallback));
 
 export default oauthRouter;

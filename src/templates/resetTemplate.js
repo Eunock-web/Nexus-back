@@ -8,6 +8,7 @@ export const resetPasswordTemplate = (resetLink) => {
         <style>
             .container { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px; }
             .header { text-align: center; color: #333; }
+            .header1 { text-align: center; color: #1850abff; }
             .content { line-height: 1.6; color: #555; }
             .button-container { text-align: center; margin: 30px 0; }
             .button { background-color: #4F46E5; color: white !important; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; }
@@ -17,6 +18,7 @@ export const resetPasswordTemplate = (resetLink) => {
     </head>
     <body>
         <div class="container">
+            <h1 class="header1" >Nexus-App</h1>
             <h2 class="header">Réinitialisation de votre mot de passe</h2>
             <div class="content">
                 <p>Bonjour,</p>

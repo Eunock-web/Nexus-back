@@ -24,6 +24,7 @@ app.use(helmet());
 app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // Documentation Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {

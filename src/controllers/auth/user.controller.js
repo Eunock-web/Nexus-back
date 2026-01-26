@@ -23,6 +23,7 @@ export class UserController {
         res.status(201).json({
           success: true,
           response : "Inscription éffectué avec succes",
+          otpResponse : "Un code de validation vous a ete envoyer",
           user: UserDto.transform(user),
         });
     }catch(error){

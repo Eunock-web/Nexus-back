@@ -4,6 +4,7 @@ import { generateOtp } from "#lib/otp";
 import { otpTemplate } from "../../templates/otp-email.js";
 import {resetPasswordTemplate} from "../../templates/resetTemplate.js"
 import crypto from 'crypto';
+import { BadRequestException, NotFoundException } from "#lib/exceptions";
 
 export class OtpService{
     
@@ -108,18 +109,30 @@ export class OtpService{
     //Fonction de verification du code OTP
     static async VerifyEmail(email, codeSaisi) { 
         const otpRecord = await prisma.otpModel.findUnique({ where: { email } });
-
+        
         if (!otpRecord) {
-            throw new NotFoundException("Aucun code de validation trouvé.");
+            throw new NotFoundException("Aucun code de validation trouvé ou votre compte a deja été validé.");
+            
         }
-
+        
         // Comparaison en String pour éviter le bug du parseInt
         if (otpRecord.code !== String(codeSaisi)) {
             throw new BadRequestException("Code invalide");
         }
+        
+        const userIsVerifyEmail = await prisma.user.findUnique({where : {email }});
+
+        if(!userIsVerifyEmail){
+            throw new NotFoundException("Aucun utilisateur trouvé.");
+        }
+
+        //Verifiez si le compte avait déja ete valider
+        if(userIsVerifyEmail.isVerified){
+            throw new BadRequestException("Votre compte a deja ete validé");
+        }
 
         // Vérification de l'expiration
-        if (new Date() > otpRecord.expirateAt) {
+        if (new Date() > otpRecord.expirateAt ) {
             throw new BadRequestException("Le code a expiré");
         }
 

@@ -5,6 +5,7 @@ import { otpTemplate } from "../../templates/otp-email.js";
 import {resetPasswordTemplate} from "../../templates/resetTemplate.js"
 import crypto from 'crypto';
 import { BadRequestException, NotFoundException } from "#lib/exceptions";
+import { signToken } from "#lib/jwt";
 
 export class OtpService{
     
@@ -49,7 +50,7 @@ export class OtpService{
 
     static async generateResetLink(user) {
         // Générer un token unique et aléatoire
-        const resetToken = crypto.randomBytes(32).toString('hex');
+        const resetToken = await signToken({sub : user.email} ,'1h');
         
         // Définir l'expiration (ex: 1 heure)
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
@@ -77,7 +78,7 @@ export class OtpService{
     static async sendResetPasswordEmail(to, resetLink) {
         // Préparation de l'email
         const mailOptions = {
-            from: `"Support TonApp" <${process.env.EMAIL_USERNAME}>`,
+            from: "Support Nexus" ,
             to: to,
             subject: "Réinitialisation de votre mot de passe",
             html: resetPasswordTemplate(resetLink), // On injecte le template ici

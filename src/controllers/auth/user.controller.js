@@ -79,7 +79,7 @@ export class UserController {
       } catch (error) {
           return res.status(error.status || 500).json({ 
               success: false, 
-              message: error
+              message: error.message
           });
       }
   }
@@ -230,8 +230,14 @@ export class UserController {
   //Fonction pour le logout
   static async logout(req, res){
     //Recuperation de l'accessToken dans le cookie
-    const refreshToken = req.cookiees.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
+    if (!refreshToken) {
+        return res.status(401).json({ 
+            success: false, 
+            message: "Aucun cookie trouvé, session expirée." 
+        });
+    }
 
     try{
       //Decoder l'accesstoken afin de recuperer l'id de l'utilisateur 

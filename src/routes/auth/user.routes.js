@@ -294,7 +294,7 @@ router.post("/update-password", asyncHandler(UserController.updatePassword));
  *       500:
  *         description: Erreur lors de la déconnexion
  */
-router.post("/logout", AuthMiddleware.isAuth, asyncHandler(UserController.logout));
+router.get("/logout", AuthMiddleware.isAuth, asyncHandler(UserController.logout));
 
 /**
  * @swagger

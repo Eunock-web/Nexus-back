@@ -113,7 +113,6 @@ router.post("/register", authLimiter, asyncHandler(UserController.register));
  *                 refreshToken:
  *                   type: string
  *                   example: "eyJhbGciOiJIUzI1NiIs..."
- *       200:
  *         description: 2FA requis
  *         content:
  *           application/json:

@@ -113,25 +113,6 @@ router.post("/register", authLimiter, asyncHandler(UserController.register));
  *                 refreshToken:
  *                   type: string
  *                   example: "eyJhbGciOiJIUzI1NiIs..."
- *       200:
- *         description: 2FA requis
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 requires2FA:
- *                   type: boolean
- *                   example: true
- *                 mfaToken:
- *                   type: string
- *                   description: Token temporaire pour la vérification 2FA
- *                 message:
- *                   type: string
- *                   example: "Veuillez entrer votre code de sécurité"
  *       401:
  *         description: Identifiants invalides
  *       429:

@@ -21,7 +21,6 @@ app.use(cookieParser());
 
 // Middlewares
 app.use(helmet());
-app.use(cors());
 app.use(httpLogger);
 app.use(express.json());
 app.get('/favicon.ico', (req, res) => res.status(204).end());
@@ -55,7 +54,7 @@ app.get("/", (req, res) => {
 
 // Utilisation des routes
 app.use("/api", userRouter); // Pour garder /register et /login à la racine
-app.use("/auth", oauthRouter); // Routes OAuth
+app.use("/Oauth", oauthRouter); // Routes OAuth
 
 // 404 handler
 app.use(notFoundHandler);

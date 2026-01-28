@@ -22,7 +22,8 @@ export class UserController {
     
         res.status(201).json({
           success: true,
-          response : "Inscription éffectué avec succes",
+          response : "Inscription éffectué avec succes", 
+          
           otpResponse : "Un code de validation vous a ete envoyer",
           user: UserDto.transform(user),
         });
@@ -71,7 +72,7 @@ export class UserController {
           res.cookie('refreshToken', result.refreshToken, cookieOptions);
           return res.json({
               success: true,
-              message: "Connexion réussie",
+              response: "Connexion réussie",
               accessToken : result.accessToken,
               refreshToken: result.refreshToken 
           });
@@ -79,7 +80,7 @@ export class UserController {
       } catch (error) {
           return res.status(error.status || 500).json({ 
               success: false, 
-              message: error.message
+              response: error.message
           });
       }
   }

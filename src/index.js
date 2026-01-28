@@ -26,6 +26,16 @@ app.use(httpLogger);
 app.use(express.json());
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+
+//Gestion du probleme de cors
+app.use(cors({
+    origin: "http://localhost:5173", // L'URL exacte de votre Front-end
+    credentials: true,               // Autorise l'envoi des cookies
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+
 // Documentation Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
   swaggerOptions: {
@@ -44,7 +54,7 @@ app.get("/", (req, res) => {
 });
 
 // Utilisation des routes
-app.use("/", userRouter); // Pour garder /register et /login à la racine
+app.use("/api", userRouter); // Pour garder /register et /login à la racine
 app.use("/auth", oauthRouter); // Routes OAuth
 
 // 404 handler

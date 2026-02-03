@@ -50,7 +50,7 @@ export class UserService {
     }
   }
 
-  static async login(email, password, meta) {
+  static async  login(email, password, meta) {
       const user = await prisma.user.findUnique({ where: { email } });
       
       // Vérification sécurité de base
@@ -67,7 +67,7 @@ export class UserService {
       }
     
       // CAS NORMAL : On génère la session et les tokens finaux
-      return await this.finalizeLogin(user, meta);
+      return await finalizeLogin(user, meta);
   }
 
   // Fonction utilitaire pour éviter la répétition (sera aussi utilisée par verify2FA)

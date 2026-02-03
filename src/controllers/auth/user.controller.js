@@ -14,7 +14,6 @@ export class UserController {
   static async register(req, res) {
     try{
         const validatedData = validateData(registerSchema, req.body);
-        console.log(validatedData);
         const user = await UserService.register(validatedData);
     
         const EmailData = await OtpService.SaveOtp(user.email);
@@ -23,7 +22,6 @@ export class UserController {
         res.status(201).json({
           success: true,
           response : "Inscription éffectué avec succes", 
-          
           otpResponse : "Un code de validation vous a ete envoyer",
           user: UserDto.transform(user),
         });
@@ -77,12 +75,22 @@ export class UserController {
               refreshToken: result.refreshToken 
           });
 
-      } catch (error) {
-          return res.status(error.status || 500).json({ 
-              success: false, 
-              response: error.message
-          });
-      }
+      // } catch (error) {
+      //     return res.status(error.status || 500).json({ 
+      //         success: false, 
+      //         response: error.message
+      //     });
+      // }
+
+        }catch (error) {
+    // AJOUTE CECI POUR VOIR L'ERREUR DANS RENDER LOGS
+    console.error("DÉTAIL ERREUR LOGIN:", error); 
+
+    return res.status(error.status || 500).json({ 
+        success: false, 
+        response: error.message || "Erreur interne du serveur"
+    });
+}
   }
       
       //Fonction pour la gestion du mot de passe oublié (prend l'email et envoi le code otp)

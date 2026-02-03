@@ -24,7 +24,7 @@ app.use(helmet());
 app.use(httpLogger);
 app.use(express.json());
 app.get('/favicon.ico', (req, res) => res.status(204).end());
-
+app.set('trust proxy', 1);
 
 //Gestion du probleme de cors
 app.use(cors({

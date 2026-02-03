@@ -75,22 +75,13 @@ export class UserController {
               refreshToken: result.refreshToken 
           });
 
-      // } catch (error) {
-      //     return res.status(error.status || 500).json({ 
-      //         success: false, 
-      //         response: error.message
-      //     });
-      // }
-
-        }catch (error) {
-    // AJOUTE CECI POUR VOIR L'ERREUR DANS RENDER LOGS
-    console.error("DÉTAIL ERREUR LOGIN:", error); 
-
-    return res.status(error.status || 500).json({ 
-        success: false, 
-        response: error.message || "Erreur interne du serveur"
-    });
-}
+      } catch (error) {
+          console.error("DÉTAIL ERREUR LOGIN:", error); 
+          return res.status(error.statusCode || 500).json({ 
+              success: false, 
+              response: error.message || "Erreur interne du serveur"
+          });
+      }
   }
       
       //Fonction pour la gestion du mot de passe oublié (prend l'email et envoi le code otp)

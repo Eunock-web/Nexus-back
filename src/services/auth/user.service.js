@@ -67,7 +67,7 @@ export class UserService {
       }
     
       // CAS NORMAL : On génère la session et les tokens finaux
-      return await finalizeLogin(user, meta);
+      return await this.finalizeLogin(user, meta);
   }
 
   // Fonction utilitaire pour éviter la répétition (sera aussi utilisée par verify2FA)

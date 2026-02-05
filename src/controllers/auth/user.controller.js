@@ -36,7 +36,7 @@ export class UserController {
   }
 
   //Fonction de Login
-  static async login(req, res) {
+  static async login(req, res, next) {
       try {
           const validatedData = validateData(loginSchema, req.body)
           const { email, password } = validatedData;
@@ -77,6 +77,7 @@ export class UserController {
 
       } catch (error) {
           console.error("DÉTAIL ERREUR LOGIN:", error); 
+          next(error);
           return res.status(error.statusCode || 500).json({ 
               success: false, 
               response: error.message || "Erreur interne du serveur"

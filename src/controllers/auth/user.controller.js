@@ -7,7 +7,7 @@ import { TwoFactorService } from "#services/auth/TwoFA.service";
 import prisma from "#lib/prisma";
 import { NotFoundException } from "#lib/exceptions";
 import { loginSchema } from "#schemas/auth/login.schema";
-import { decodeJwt, jwtVerify } from "jose";
+import { decodeJwt } from "jose";
 
 export class UserController {
 
@@ -68,8 +68,10 @@ export class UserController {
 
           // On place l'AccessToken dans le cookie
           res.cookie('refreshToken', result.refreshToken, cookieOptions);
+          const user = await prisma.user.findUnique({where : {email : email}});
           return res.json({
               success: true,
+              user : user,
               response: "Connexion réussie",
               accessToken : result.accessToken,
               refreshToken: result.refreshToken 

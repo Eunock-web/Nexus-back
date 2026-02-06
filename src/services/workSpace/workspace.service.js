@@ -56,4 +56,29 @@ export class WorkSpaceService{
             workspace: newWorkspace
         };
     }
+
+
+    //Fonction pour recuperer la liste des workspaces 
+    static async getAllWorkspace(){
+        return  await prisma.workSpace.findMany({
+            select : {
+                name : true,
+                slug : true,
+                logoUrl : true,
+                createdAt : true,
+                workSpaceMembers : {
+                    select : {
+                        role : true,
+                        user : {
+                            select : {
+                                firstname : true,
+                                lastname : true,
+                                avatarUrl : true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }

@@ -69,4 +69,9 @@ export class WorkSpaceController{
             }
     }
 
+    //Fonction pour la recuperation de toutes les workspace
+    static async getAll(req, res){
+        return await WorkSpaceService.getAllWorkspace();
+    }
+
 }

@@ -11,6 +11,7 @@ import { errorHandler } from "#middlewares/error-handler";
 import { notFoundHandler } from "#middlewares/not-found";
 import userRouter from "#routes/auth/user.routes";
 import oauthRouter from "#routes/auth/oauth.routes";
+import workspaceRouter from "#routes/workspace/workspace.route";
 import cookieParser from 'cookie-parser';
 import { specs } from "#lib/swagger";
 
@@ -28,10 +29,10 @@ app.set('trust proxy', 1);
 
 //Gestion du probleme de cors
 app.use(cors({
-    origin: "http://localhost:5173", // L'URL exacte de votre Front-end
-    credentials: true,               // Autorise l'envoi des cookies
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "http://localhost:5173", // L'URL exacte de votre Front-end
+  credentials: true,               // Autorise l'envoi des cookies
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 
@@ -45,8 +46,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
 
 // Routes
 app.get("/", (req, res) => {
-  res.json({ 
-    success: true, 
+  res.json({
+    success: true,
     message: "API Express opérationnelle",
     documentation: "Consultez http://localhost:3000/api-docs pour la documentation Swagger"
   });
@@ -55,6 +56,7 @@ app.get("/", (req, res) => {
 // Utilisation des routes
 app.use("/api", userRouter); // Pour garder /register et /login à la racine
 app.use("/Oauth", oauthRouter); // Routes OAuth
+app.use("/api/workspace", workspaceRouter); // Routes Workspace
 
 // 404 handler
 app.use(notFoundHandler);

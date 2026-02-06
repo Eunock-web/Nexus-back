@@ -1,9 +1,9 @@
 import { signToken } from "#lib/jwt";
 import prisma from "#lib/prisma";
-import { EmailSendService } from "./sendEmail.service";
+import { EmailSendService } from "./sendEmail.service.js";
 
 
-export class WorkSpaceService{
+export class WorkSpaceService {
 
     //Fonction de creation d'un workspace
     static async createWorkSpace(data, userId) {
@@ -16,13 +16,17 @@ export class WorkSpaceService{
             ownerId: userId,
         };
 
+        const userInfo = await prisma.user.findUnique({ where: { id: userId } });
+        if (!userInfo) {
+            throw new Error("User not found"); // Simple error handling, ideally use a custom exception
+        }
+        const projectName = "Nexus App";
+
         // Si un email est présent, on ajoute l'invitation de manière imbriquée
         if (email) {
             const inviteToken = await signToken({ email }, '15m'); // On passe un objet au token
-            const userInfo = await prisma.user.findUnique({where : {id : userId}})
-            const projectName = "Nexus App"
-            //Envoie du token par email
 
+            //Envoie du token par email
             workspaceData.invitations = {
                 create: {
                     email: email,
@@ -31,7 +35,8 @@ export class WorkSpaceService{
                 }
             };
 
-            await EmailSendService.SendInviteEmail(email, inviteToken,userInfo.firstname,projectName, name);
+            // Correction: SendInviteEmail -> sendInviteEmail
+            await EmailSendService.sendInviteEmail(email, inviteToken, userInfo.firstname, projectName, name);
         }
 
         // Une seule pile d'appel Prisma suffit
@@ -44,10 +49,10 @@ export class WorkSpaceService{
 
         //Ajout de l'admin directement dans la table worksapcemember
         await prisma.workSpaceMembers.create({
-            data : {
-                role : "ADMIN",
-                userId : userId,
-                workSpaceId : last
+            data: {
+                role: "ADMIN",
+                userId: userId,
+                workSpaceId: newWorkspace.id // Correction: usage de newWorkspace.id au lieu de 'last'
             }
         })
 
@@ -59,21 +64,21 @@ export class WorkSpaceService{
 
 
     //Fonction pour recuperer la liste des workspaces 
-    static async getAllWorkspace(){
-        return  await prisma.workSpace.findMany({
-            select : {
-                name : true,
-                slug : true,
-                logoUrl : true,
-                createdAt : true,
-                workSpaceMembers : {
-                    select : {
-                        role : true,
-                        user : {
-                            select : {
-                                firstname : true,
-                                lastname : true,
-                                avatarUrl : true,
+    static async getAllWorkspace() {
+        return await prisma.workSpace.findMany({
+            select: {
+                name: true,
+                slug: true,
+                logoUrl: true,
+                createdAt: true,
+                workSpaceMembers: {
+                    select: {
+                        role: true,
+                        user: {
+                            select: {
+                                firstname: true,
+                                lastname: true,
+                                avatarUrl: true,
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 import { signToken } from "#lib/jwt";
 import prisma from "#lib/prisma";
+import { EmailSendService } from "./sendEmail.service";
 
 
 export class WorkSpaceService{
@@ -18,7 +19,10 @@ export class WorkSpaceService{
         // Si un email est présent, on ajoute l'invitation de manière imbriquée
         if (email) {
             const inviteToken = await signToken({ email }, '15m'); // On passe un objet au token
-            
+            const userInfo = await prisma.user.findUnique({where : {id : userId}})
+            const projectName = "Nexus App"
+            //Envoie du token par email
+
             workspaceData.invitations = {
                 create: {
                     email: email,
@@ -26,6 +30,8 @@ export class WorkSpaceService{
                     invitedById: userId
                 }
             };
+
+            await EmailSendService.SendInviteEmail(email, inviteToken,userInfo.firstname,projectName, name);
         }
 
         // Une seule pile d'appel Prisma suffit

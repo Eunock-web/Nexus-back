@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer'
 import { generateOtp } from "#lib/otp";
 import { otpTemplate } from "../../templates/otp-email.js";
 import {resetPasswordTemplate} from "../../templates/resetTemplate.js"
-import crypto from 'crypto';
 import { BadRequestException, NotFoundException } from "#lib/exceptions";
 import { signToken } from "#lib/jwt";
 
@@ -67,8 +66,7 @@ export class OtpService{
             }
         });
 
-        //  Construire le lien vers ton FRONTEND
-        // Ne pointe PAS vers ton API, mais vers la page de ton site (React/Vue/Next)
+        //  Construire le lien vers le FRONTEND
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
         return resetLink;

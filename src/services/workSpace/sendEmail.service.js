@@ -1,7 +1,6 @@
 import { NotFoundException } from "#lib/exceptions";
 import prisma from "#lib/prisma";
 import { invitationTemplate } from "../../templates/InviteLink";
-import { resetPasswordTemplate } from "../../templates/resetTemplate";
 
 
 export class EmailSendService{
@@ -34,6 +33,8 @@ export class EmailSendService{
                 where : {token : token}
             });
 
+            const workSpaceId = await prisma.user.findUnique(email);
+
             if (!user){
                 throw new NotFoundException("Token innexistant");
             }
@@ -44,6 +45,17 @@ export class EmailSendService{
                     response : "Lien Invalide"
                 }
             }
+
+            //Suppression du lien d'inviation de la table invitation
+            await prisma.invitation.deleteMany({where : {token : token}});
+
+            //Ajout de l'utilisateur dans la table WorkspaceMember
+            await prisma.workSpaceMembers.create({
+                data : {
+                    userId : user.id,
+                    workSpaceId : workSpaceId.id
+                }
+            })
 
             return {
                 success : true,

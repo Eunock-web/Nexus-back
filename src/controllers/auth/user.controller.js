@@ -121,7 +121,6 @@ export class UserController {
   static async verifyResetToken(req, res) {
       try {
           const { token } = req.params;
-          console.log(token)
 
           if (!token) {
               return res.status(400).json({ success: false, response: "Token manquant." });

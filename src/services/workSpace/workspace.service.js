@@ -42,6 +42,15 @@ export class WorkSpaceService{
             }
         });
 
+        //Ajout de l'admin directement dans la table worksapcemember
+        await prisma.workSpaceMembers.create({
+            data : {
+                role : "ADMIN",
+                userId : userId,
+                workSpaceId : last
+            }
+        })
+
         return {
             success: true,
             workspace: newWorkspace

@@ -9,4 +9,6 @@ workspaceRouter.post('/create', AuthMiddleware.isAuth, asyncHandler(WorkSpaceCon
 
 workspaceRouter.get('/verify/:token', asyncHandler(WorkSpaceController.verifyInviteEmail));
 
+workspaceRouter.get('/', AuthMiddleware.isAuth, asyncHandler(WorkSpaceController.getAll));
+
 export default workspaceRouter;

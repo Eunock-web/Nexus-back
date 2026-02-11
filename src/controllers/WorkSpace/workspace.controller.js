@@ -48,10 +48,6 @@ export class WorkSpaceController {
                 return res.status(400).json({ success: false, response: "Token manquant." });
             }
 
-            if (!email) {
-                return res.status(400).json({ success: false, response: "Email manquant." });
-            }
-
             const verifyEmail = await EmailSendService.verifyInviteEmail(token);
 
             if (!verifyEmail.success) {
@@ -75,7 +71,11 @@ export class WorkSpaceController {
 
     //Fonction pour la recuperation de toutes les workspace
     static async getAll(req, res) {
-        return await WorkSpaceService.getAllWorkspace();
+        const workspaces = await WorkSpaceService.getAllWorkspace();
+        return res.json({
+            success: true,
+            workspaces: workspaces
+        });
     }
 
 }

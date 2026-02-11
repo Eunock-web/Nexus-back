@@ -24,7 +24,7 @@ export class WorkSpaceService {
 
         // Si un email est présent, on ajoute l'invitation de manière imbriquée
         if (email) {
-            const inviteToken = await signToken({ email }, '15m'); 
+            const inviteToken = await signToken({ email }, '15m');
 
             //Envoie du token par email
             workspaceData.invitations = {
@@ -45,12 +45,12 @@ export class WorkSpaceService {
             }
         });
 
-        //Ajout de l'admin directement dans la table worksapcemember
+        //Ajout du createur du projet directement dans la table worksapcemember
         await prisma.workSpaceMembers.create({
             data: {
-                role: "ADMIN",
+                role: "OWNER",
                 userId: userId,
-                workSpaceId: newWorkspace.id 
+                workSpaceId: newWorkspace.id
             }
         })
 
@@ -85,37 +85,4 @@ export class WorkSpaceService {
         });
     }
 
-    //Fonction pour la creation d'un projet
-    static async createProject(data){
-        const {name, description, tagname, couleur} = data
-
-        const projectCreate = await prisma.project.create({
-            data : {
-                name : name,
-                description :description
-            }
-        });
-
-        if(!projectCreate){
-            return {
-                status : false,
-                reponse : "erreur lors de la creation"
-            }
-        }
-
-        const project = await prisma.project.findFirst();
-
-        await prisma.projectTag.create({
-            data : {
-                name : tagname,
-                color : couleur,
-                projectId : project.id
-            }
-        })
-
-        return {
-            success : true,
-            response : "Projet créer avec success"
-        }
-    }
 }

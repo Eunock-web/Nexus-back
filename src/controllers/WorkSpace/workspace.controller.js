@@ -10,7 +10,7 @@ export class WorkSpaceController {
     static async createWorkspace(req, res) {
         try {
             const validatedData = validateData(WorkSpaceSchema, req.body)
-            const userId = req.user.id || 1;
+            const userId = req.user.id ;
 
             if (!userId) {
                 throw new UnauthorizedException("Authentification requis");

@@ -10,7 +10,7 @@ export class WorkSpaceController {
     static async createWorkspace(req, res) {
         try {
             const validatedData = validateData(WorkSpaceSchema, req.body)
-            const userId = req.user.id;
+            const userId = req.user.id || 1;
 
             if (!userId) {
                 throw new UnauthorizedException("Authentification requis");
@@ -43,7 +43,6 @@ export class WorkSpaceController {
     static async verifyInviteEmail(req, res) {
         try {
             const { token } = req.params;
-            const { email } = req.query; // Extraction de l'email depuis la query string
 
             if (!token) {
                 return res.status(400).json({ success: false, response: "Token manquant." });
@@ -53,7 +52,7 @@ export class WorkSpaceController {
                 return res.status(400).json({ success: false, response: "Email manquant." });
             }
 
-            const verifyEmail = await EmailSendService.verifyInviteEmail(email, token);
+            const verifyEmail = await EmailSendService.verifyInviteEmail(token);
 
             if (!verifyEmail.success) {
                 return res.json({

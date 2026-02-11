@@ -2,6 +2,7 @@ import nodemailer from "nodemailer";
 import { NotFoundException } from "#lib/exceptions";
 import prisma from "#lib/prisma";
 import { invitationTemplate } from "../../templates/InviteLink.js";
+import { jwtVerify } from "jose";
 
 
 export class EmailSendService {
@@ -17,19 +18,19 @@ export class EmailSendService {
     });
 
     //Fonction d'envoi de lien d'invitation
-    static async sendInviteEmail(email, code, inviterName, projectName, workSpaceName) { // Renamed to camelCase
+    static async sendInviteEmail(email, code, inviterName, projectName, workSpaceName) { 
         const data = {
             from: '"Nexus App" <no-reply@nexus.com>',
             to: email,
             subject: "Invitation ",
-            html: invitationTemplate(code, inviterName, projectName, workSpaceName) // Removed undefined 'time' variable
+            html: invitationTemplate(code, inviterName, projectName, workSpaceName) 
         };
 
         return await this.transporter.sendMail(data);
     }
 
     //Fonction de verification du mail et ajout au workspace
-    static async verifyInviteEmail(email, token) {
+    static async verifyInviteEmail(token) {
         // En supposant que le token est stocké dans une table 'invitation'
         const invitation = await prisma.invitation.findUnique({
             where: { token: token }
@@ -39,10 +40,21 @@ export class EmailSendService {
             throw new NotFoundException("Token inexistant");
         }
 
+        //Retrait du mail depuis le token
+        //Encodage de la cle secrete pour la cerification du payload
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        //Verification du token
+            const {payload} = await jwtVerify(token, secret);
+
+            console.log(payload);
+
+        const email = payload.sub
+        // const email = payload.email;
+
         if (invitation.email !== email) {
             return {
                 success: false,
-                response: "Lien Invalide"
+                response: "Ce lien n'est pas associer a votre email"
             }
         }
 
@@ -52,13 +64,11 @@ export class EmailSendService {
         });
 
         if (!user) {
-             // TODO: Gérer le cas où l'utilisateur n'existe pas encore (peut-être rediriger vers inscription ?)
-             // Pour l'instant on renvoie une erreur ou on suppose qu'il doit s'inscrire
              throw new NotFoundException("Utilisateur non trouvé avec cet email");
         }
 
         //Suppression du lien d'inviation de la table invitation
-        await prisma.invitation.delete({ where: { token: token } }); // Changed from deleteMany to delete
+        await prisma.invitation.delete({ where: { token: token } }); 
 
         //Ajout de l'utilisateur dans la table WorkspaceMember
         // Note: 'workSpaceId' dans votre code original semblait être le résultat d'une recherche user, ce qui était confus.
@@ -68,8 +78,7 @@ export class EmailSendService {
         // MAIS dans votre code précédent createWorkspace, vous faisiez:
         // workspaceData.invitations = { create: { ... } } -> donc l'invitation est liée au workspace.
 
-        // Si Invitation modèle a 'workSpaceId' (ce qui serait logique)
-        if (invitation.workSpaceId) {
+        if (invitation.workspaceId) {
              await prisma.workSpaceMembers.create({
                 data: {
                     userId: user.id,
@@ -77,10 +86,10 @@ export class EmailSendService {
                 }
             })
         } else {
-             // Fallback si pas de workSpaceId sur invitation (ce qui serait un défaut de modèle)
-             // On ne peut pas deviner le workspace sans cette info.
-             // On va supposer ici que prisma.invitation a accès au workSpaceId
-             // Si ça plante, il faudra vérifier le schema.prisma
+                return {
+                success: true,
+                response: "Lien validé avec succès"
+            }
         }
 
         return {

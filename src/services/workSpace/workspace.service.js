@@ -24,7 +24,7 @@ export class WorkSpaceService {
 
         // Si un email est présent, on ajoute l'invitation de manière imbriquée
         if (email) {
-            const inviteToken = await signToken({ email }, '15m'); // On passe un objet au token
+            const inviteToken = await signToken({ email }, '15m'); 
 
             //Envoie du token par email
             workspaceData.invitations = {
@@ -35,11 +35,9 @@ export class WorkSpaceService {
                 }
             };
 
-            // Correction: SendInviteEmail -> sendInviteEmail
             await EmailSendService.sendInviteEmail(email, inviteToken, userInfo.firstname, projectName, name);
         }
 
-        // Une seule pile d'appel Prisma suffit
         const newWorkspace = await prisma.workSpace.create({
             data: workspaceData,
             include: {
@@ -52,7 +50,7 @@ export class WorkSpaceService {
             data: {
                 role: "ADMIN",
                 userId: userId,
-                workSpaceId: newWorkspace.id // Correction: usage de newWorkspace.id au lieu de 'last'
+                workSpaceId: newWorkspace.id 
             }
         })
 

@@ -94,6 +94,8 @@ model WorkSpace{
   invitations Invitation[]
 
   auditLogs AuditLog[]
+
+  projects Project[]
 }
 
 //Model pour les membres d'un WorkSpace
@@ -133,3 +135,23 @@ model AuditLog {
   workspace   WorkSpace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
+model Project{
+  id Int @id @default(autoincrement())
+  name String 
+  description String?
+  isTemplate Boolean @default(false)
+  workspaceId Int
+  
+  workspace   WorkSpace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Task{
+  id Int @id @default(autoincrement())
+  title String
+  description String?
+  type String
+  priority String @default("MEDIUM")
+  status String @default("TODO")
+  startDate DateTime?
+  endDate DateTime?
+}

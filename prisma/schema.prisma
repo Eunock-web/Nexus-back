@@ -35,6 +35,8 @@ model User {
   workSpaces WorkSpace[] @relation("WorkSpaceOwner")
 
   workSpaceMembers WorkSpaceMembers[]
+
+  userPreferences UserPreference[]
 }
 
 
@@ -78,6 +80,18 @@ model OtpModel{
   //relation
   user User @relation(fields: [email], references: [email], onDelete: Cascade)
 }
+
+model UserPreference {
+  id             Int     @id @default(autoincrement())
+  userId         Int     @unique
+  theme          String  @default("system") // "light", "dark", "system"
+  language       String  @default("fr")
+  notifications  String  @default("all") // JSON string pour préférences détaillées
+  
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
 
 //Model pour un espace de travail
 model WorkSpace{
@@ -143,7 +157,28 @@ model Project{
   workspaceId Int
   
   workspace   WorkSpace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectShares ProjectShare[]
+  projectTags ProjectTag[]
 }
+
+model ProjectShare{
+  id Int @id @default(autoincrement())
+  projectId Int @unique
+  token String @unique
+  isEnable Boolean @default(true)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectTag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String   @default("#0f1b85ff")
+  projectId Int
+  
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
 
 model Task{
   id Int @id @default(autoincrement())

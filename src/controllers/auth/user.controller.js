@@ -71,7 +71,7 @@ export class UserController {
           const user = await prisma.user.findUnique({where : {email : email}});
           return res.json({
               success: true,
-              user : user,
+              user : UserDto(user),
               response: "Connexion réussie",
               accessToken : result.accessToken,
               refreshToken: result.refreshToken 
@@ -121,7 +121,6 @@ export class UserController {
   static async verifyResetToken(req, res) {
       try {
           const { token } = req.params;
-          console.log(token)
 
           if (!token) {
               return res.status(400).json({ success: false, response: "Token manquant." });

@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
 }
 
 datasource db {
@@ -32,6 +31,12 @@ model User {
   sessions Session[]
   oauths OAuth[]
   otpModels OtpModel[]
+
+  workSpaces WorkSpace[] @relation("WorkSpaceOwner")
+
+  workSpaceMembers WorkSpaceMembers[]
+
+  userPreferences UserPreference[]
 }
 
 
@@ -74,4 +79,114 @@ model OtpModel{
 
   //relation
   user User @relation(fields: [email], references: [email], onDelete: Cascade)
+}
+
+model UserPreference {
+  id             Int     @id @default(autoincrement())
+  userId         Int     @unique
+  theme          String  @default("system") // "light", "dark", "system"
+  language       String  @default("fr")
+  notifications  String  @default("all") // JSON string pour préférences détaillées
+  
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+
+//Model pour un espace de travail
+model WorkSpace{
+  id Int @id @default(autoincrement())
+  name String 
+  slug String @unique
+  logoUrl String?
+  ownerId Int
+  createdAt DateTime @default(now())
+  owner User @relation("WorkSpaceOwner", fields: [ownerId], references: [id])
+
+  workSpaceMembers WorkSpaceMembers[]
+
+  invitations Invitation[]
+
+  auditLogs AuditLog[]
+
+  projects Project[]
+}
+
+//Model pour les membres d'un WorkSpace
+model WorkSpaceMembers{
+  id Int @id @default(autoincrement())
+  role String @default("MEMBER") //OWNER, MEMBER, GUEST, ADMIN
+  userId Int
+  workSpaceId Int
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade )
+  workspace WorkSpace @relation(fields: [workSpaceId], references: [id], onDelete: Cascade )
+
+  @@unique([userId, workSpaceId])
+}
+
+model Invitation {
+  id          Int       @id @default(autoincrement())
+  email       String
+  token       String    @unique
+  role        String    @default("MEMBER")
+  workspaceId Int
+  invitedById Int
+  expiresAt   DateTime
+  status      String    @default("PENDING") 
+  workspace   WorkSpace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          Int       @id @default(autoincrement())
+  workspaceId Int
+  userId      Int
+  action      String    // ex: "MEMBER_REMOVED", "SETTINGS_CHANGED"
+  entity      String    
+  entityId    Int?
+  details     String?   // JSON string des changements
+  createdAt   DateTime  @default(now())
+  workspace   WorkSpace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Project{
+  id Int @id @default(autoincrement())
+  name String 
+  description String?
+  isTemplate Boolean @default(false)
+  workspaceId Int
+  
+  workspace   WorkSpace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectShares ProjectShare[]
+  projectTags ProjectTag[]
+}
+
+model ProjectShare{
+  id Int @id @default(autoincrement())
+  projectId Int @unique
+  token String @unique
+  isEnable Boolean @default(true)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectTag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String   @default("#0f1b85ff")
+  projectId Int
+  
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+
+model Task{
+  id Int @id @default(autoincrement())
+  title String
+  description String?
+  type String
+  priority String @default("MEDIUM")
+  status String @default("TODO")
+  startDate DateTime?
+  endDate DateTime?
 }

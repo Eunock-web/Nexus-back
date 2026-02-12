@@ -716,3 +716,4 @@ router.get("/getAllSection/", AuthMiddleware.isAuth, asyncHandler(UserController
 router.get("/reset-password/:token", asyncHandler(UserController.verifyResetToken));
 
 export default router;
+0

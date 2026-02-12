@@ -713,6 +713,6 @@ router.get("/getAllSection/", AuthMiddleware.isAuth, asyncHandler(UserController
  *       410:
  *         description: Token expiré
  */
-router.get("reset-password/:token", asyncHandler(UserController.verifyResetToken));
+router.get("/reset-password/:token", asyncHandler(UserController.verifyResetToken));
 
 export default router;

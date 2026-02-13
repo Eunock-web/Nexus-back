@@ -41,7 +41,7 @@ export class OAuthController {
             success: true,
             message: "Authentification réussie",
             accessToken: result.response.accessToken,
-            user : UserDto.transform(user);
+            user : UserDto.transform(user)
         });
     };
 

@@ -55,7 +55,7 @@ app.get("/", (req, res) => {
 
 // Utilisation des routes
 app.use("/api", userRouter); // Pour garder /register et /login à la racine
-app.use("/Oauth", oauthRouter); // Routes OAuth
+app.use("api/Oauth", oauthRouter); // Routes OAuth
 app.use("/api/workspace", workspaceRouter); // Routes Workspace
 app.use("/api/project", workspaceRouter); // Routes project
 

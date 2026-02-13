@@ -1,19 +1,11 @@
 import { OAuthService } from "#services/OAuth/auth.service";
 
 export class OAuthController {
-    /**
-     * Redirection vers Google OAuth
-     * GET /auth/google/redirect
-     */
     static async redirect(req, res){
         const googleAuthUrl = await OAuthService.refirectToGoogle();
         res.redirect(googleAuthUrl);
     };
 
-    /**
-     * Callback après authentification Google
-     * GET /auth/google/callback?code=...&state=...
-     */
     static async callback(req, res){
         const { code } = req.query;
 

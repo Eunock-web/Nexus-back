@@ -48,7 +48,10 @@ export class OAuthService{
             providerAccountId: sub
         }, meta);
 
-        return result;
+        return {
+            data : email,
+            response : result
+        };
     }
 
 

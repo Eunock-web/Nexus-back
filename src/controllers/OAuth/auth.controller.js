@@ -1,3 +1,5 @@
+import { UserDto } from "#dto/user.dto";
+import prisma from "#lib/prisma";
 import { OAuthService } from "#services/OAuth/auth.service";
 
 export class OAuthController {
@@ -26,17 +28,20 @@ export class OAuthController {
         const result = await OAuthService.handleGoogleAuth(code, meta);
 
         // Envoyer les tokens (accessToken dans le body, refreshToken en cookie)
-        res.cookie('refreshToken', result.refreshToken, {
+        res.cookie('refreshToken', result.response.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
         });
 
+        const user = await prisma.user.findUnique({where : {email : result.data}});
+
         return res.status(200).json({
             success: true,
             message: "Authentification réussie",
-            accessToken: result.accessToken,
+            accessToken: result.response.accessToken,
+            user : UserDto.transform(user);
         });
     };
 

@@ -67,7 +67,7 @@ export class OtpService{
         });
 
         //  Construire le lien vers le FRONTEND
-        const resetLink = `${process.env.FRONTEND_URL}api/reset-password/${resetToken}`;
+        const resetLink = `${process.env.FRONTEND_URL}reset-password/${resetToken}`;
 
         return resetLink;
     }    

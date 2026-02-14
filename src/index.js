@@ -14,6 +14,7 @@ import oauthRouter from "#routes/auth/oauth.routes";
 import workspaceRouter from "#routes/workspace/workspace.route";
 import cookieParser from 'cookie-parser';
 import { specs } from "#lib/swagger";
+import projectRouter from "#routes/workspace/project.route";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,7 +58,7 @@ app.get("/", (req, res) => {
 app.use("/api", userRouter); // Pour garder /register et /login à la racine
 app.use("/api/Oauth", oauthRouter); // Routes OAuth
 app.use("/api/workspace", workspaceRouter); // Routes Workspace
-app.use("/api/project", workspaceRouter); // Routes project
+app.use("/api/project", projectRouter); // Routes project
 
 // 404 handler
 app.use(notFoundHandler);

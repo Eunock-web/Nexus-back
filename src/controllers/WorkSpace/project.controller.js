@@ -27,7 +27,8 @@ export class ProjectController {
             }
             return res.status(200).json({
                 success: true,
-                response: "Projet créer avec success"
+                message: "Projet créer avec success",
+                response : result.data
             });
         } catch (error) {
             return res.status(500).json({

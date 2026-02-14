@@ -5,7 +5,7 @@ import { ProjectController } from '#controllers/WorkSpace/project.controller';
 
 const projectRouter = express.Router();
 
-projectRouter.post('/:workspaceId/create', AuthMiddleware.isAuth, asyncHandler(ProjectController.createProject));
+projectRouter.post('/create/:workspaceId', AuthMiddleware.isAuth, asyncHandler(ProjectController.createProject));
 
 
 export default projectRouter;

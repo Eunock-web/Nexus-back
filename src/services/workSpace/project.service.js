@@ -22,7 +22,7 @@ export class ProjectService {
             }
         }
 
-        await prisma.projectTag.create({
+        const project = await prisma.projectTag.create({
             data: {
                 name: tagname,
                 color: couleur,
@@ -30,9 +30,12 @@ export class ProjectService {
             }
         })
 
+
+
         return {
             success: true,
-            response: "Projet créer avec success"
+            response: "Projet créer avec success",
+            data : project
         }
     }
 

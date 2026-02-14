@@ -141,7 +141,10 @@ export class OAuthService{
                 providerAccountId: githubUser.id.toString()
             }, meta);
 
-            return result;
+            return {
+                data : email,
+                response : result
+            };
 
         } catch (error) {
             console.error('Erreur GitHub OAuth:', error);

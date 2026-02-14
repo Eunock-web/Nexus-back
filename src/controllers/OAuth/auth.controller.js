@@ -94,12 +94,14 @@ export class OAuthController {
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 jours
             });
 
+            const user = await prisma.user.findUnique({where : {email : result.data}});
+
             return res.status(200).json({
                 success: true,
                 message: "Authentification réussie via GitHub",
-                accessToken: result.accessToken,
-                refreshToken: result.refreshToken,
-                user: result.user
+                accessToken: result.response.accessToken,
+                refreshToken: result.response.refreshToken,
+                user: UserDto.transform(user)
             });
 
         } catch (error) {

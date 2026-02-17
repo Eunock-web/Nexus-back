@@ -16,7 +16,7 @@ export class ProjectController {
                     success: false,
                     response: "Donnée requise"
                 })
-            }
+            }   
 
             const result = await ProjectService.createProject(validatedData, workspaceId);
             if (!result.success) {

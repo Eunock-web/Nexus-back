@@ -35,7 +35,8 @@ export class WorkSpaceService {
                 }
             };
 
-            await EmailSendService.sendInviteEmail(email, inviteToken, userInfo.firstname, projectName, name);
+            const inviteLink = `${process.env.FRONTEND_URL}verify/${inviteToken}`
+            await EmailSendService.sendInviteEmail(email, inviteLink, userInfo.firstname, projectName, name);
         }
 
         const newWorkspace = await prisma.workSpace.create({

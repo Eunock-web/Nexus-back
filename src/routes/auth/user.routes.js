@@ -502,7 +502,7 @@ router.get("/", asyncHandler(UserController.getAll));
  *       401:
  *         description: Non authentifié ou session expirée
  */
-router.post("/refresh", AuthMiddleware.isAuth, asyncHandler(UserController.refresh));
+router.post("/refresh", asyncHandler(UserController.refresh));
 
 /**
  * @swagger

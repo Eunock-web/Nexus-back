@@ -155,10 +155,13 @@ model Project{
   description String?
   isTemplate Boolean @default(false)
   workspaceId Int
+  deletedAt  DateTime?
   
-  workspace   WorkSpace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   projectShares ProjectShare[]
   projectTags ProjectTag[]
+  sprints Sprint[]
+  tasks Task[]
+  workspace   WorkSpace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 model ProjectShare{
@@ -179,14 +182,32 @@ model ProjectTag {
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
+model Sprint{
+  id Int @id @default(autoincrement())
+  name String 
+  startDate DateTime
+  endDate   DateTime
+  status String @default("PLANNED")
+  projectId Int
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+}
 
 model Task{
   id Int @id @default(autoincrement())
   title String
   description String?
   type String
+  projectId Int
+  sprintId Int?
   priority String @default("MEDIUM")
   status String @default("TODO")
   startDate DateTime?
   endDate DateTime?
+  estimatedTime Int?
+
+  project Project @relation(fields: [projectId], references: [id])
+  sprint Sprint? @relation(fields: [sprintId], references: [id])
 }

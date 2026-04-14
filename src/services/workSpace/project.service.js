@@ -11,7 +11,7 @@ export class ProjectService {
             data: {
                 name: name,
                 description: description,
-                workspaceId: parseInt(workspaceId)
+                workspaceId: parseInt(workspaceId),
             }
         });
 
@@ -24,13 +24,11 @@ export class ProjectService {
 
         const project = await prisma.projectTag.create({
             data: {
-                name: tagname,
-                color: couleur,
+                name: tagname || '',
+                color: couleur || '',
                 projectId: projectCreate.id
             }
         })
-
-
 
         return {
             success: true,

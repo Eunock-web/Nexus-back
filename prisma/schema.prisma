@@ -199,7 +199,6 @@ model Task{
   id Int @id @default(autoincrement())
   title String
   description String?
-  type String
   projectId Int
   sprintId Int?
   priority String @default("MEDIUM")

@@ -11,4 +11,10 @@ workspaceRouter.get('/verify/:token', asyncHandler(WorkSpaceController.verifyInv
 
 workspaceRouter.get('/', AuthMiddleware.isAuth, asyncHandler(WorkSpaceController.getAll));
 
+workspaceRouter.get('/:id', AuthMiddleware.isAuth, asyncHandler(WorkSpaceController.getWorkspaceById));
+
+workspaceRouter.get('/user/:userId', AuthMiddleware.isAuth, asyncHandler(WorkSpaceController.getWorkspaceByUser));
+
+workspaceRouter.get('/members/:id', AuthMiddleware.isAuth, asyncHandler(WorkSpaceController.getWorkspaceMembers));
+
 export default workspaceRouter;

@@ -78,4 +78,90 @@ export class WorkSpaceController {
         });
     }
 
+    //Fonction pour la recuperation des workspaces d'un utilisateur
+    static async getWorkspaceByUser(req, res) {
+        try {
+            const userId = req.user.id;
+
+            if (!userId) {
+                throw new UnauthorizedException("Authentification requis");
+            }
+
+            const workspaces = await WorkSpaceService.getWorkspaceByUser(userId);
+            if(workspaces.success){
+                return res.json({
+                    success: true,
+                    workspaces: workspaces.data
+                });
+            }else{
+                return res.json({
+                    success: false,
+                    response: "Echec de la recuperation des workspaces"
+                })
+            }
+        } catch (error) {
+            res.json({
+                success: false,
+                response: error.message
+            })
+        }
+    }
+
+    //Fonction pour la recuperation des details d'un workspace
+    static async getWorkspaceById(req, res) {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                throw new UnauthorizedException("Authentification requis");
+            }
+
+            const workspace = await WorkSpaceService.getWorkspaceById(id);
+            if(workspace.success){
+                return res.json({
+                    success: true,
+                    workspace: workspace.data
+                });
+            }else{
+                return res.json({
+                    success: false,
+                    response: "Echec de la recuperation du workspace"
+                })
+            }
+        } catch (error) {
+            res.json({
+                success: false,
+                response: error.message
+            })
+        }
+    }
+
+    //Fonction pour la recuperation des membres d'un workspace
+    static async getWorkspaceMembers(req, res) {
+        try {
+            const { id } = req.params;
+
+            if (!id) {
+                throw new UnauthorizedException("Authentification requis");
+            }
+
+            const members = await WorkSpaceService.getWorkspaceMembers(id);
+            if(members.success){
+                return res.json({
+                    success: true,
+                    members: members.data
+                });
+            }else{
+                return res.json({
+                    success: false,
+                    response: "Echec de la recuperation des membres"
+                })
+            }
+        } catch (error) {
+            res.json({
+                success: false,
+                response: error.message
+            })
+        }
+    }
 }

@@ -38,4 +38,33 @@ export class ProjectController {
         }
     }
 
+
+    static async projectLists(req, res) {
+        try {
+            const { workspaceId } = req.params;
+
+            if (!workspaceId) {
+                throw new UnauthorizedException("Authentification requis");
+            }
+
+            const projects = await ProjectService.projectLists(workspaceId);
+            if(projects.success){
+                return res.json({
+                    success: true,
+                    projects: projects.data
+                });
+            }else{
+                return res.json({
+                    success: false,
+                    response: "Echec de la recuperation des projets"
+                })
+            }
+        } catch (error) {
+            res.json({
+                success: false,
+                response: error.message
+            })
+        }
+    }
+
 }

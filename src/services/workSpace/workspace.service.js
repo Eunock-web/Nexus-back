@@ -62,10 +62,10 @@ export class WorkSpaceService {
     }
 
 
-    //Fonction pour recuperer la liste des workspaces 
+    //Fonction pour recuperer la liste des workspaces d'un utilisateur
     static async getAllWorkspace() {
         return await prisma.workSpace.findMany({
-            select: {
+            select: { 
                 name: true,
                 slug: true,
                 logoUrl: true,
@@ -86,4 +86,96 @@ export class WorkSpaceService {
         });
     }
 
+    //Fonction pour recuperer les details d'un workspace
+    static async getWorkspaceById(id){
+        const workspace = await prisma.workSpace.findUnique({
+            where : {
+                id : id
+            },
+            select : {
+                name : true,
+                slug : true,
+                logoUrl : true,
+                createdAt : true,
+                workSpaceMembers: {
+                    select: {
+                        role: true,
+                        user: {
+                            select: {
+                                firstname: true,
+                                lastname: true,
+                                avatarUrl: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return {
+            'success' : true,
+            'data' : workspace
+        };
+    }
+
+    //Fonction pour recuperer les workspaces d'un utilisateur
+    static async getWorkspaceByUser(userId){
+        const workspaces = await prisma.workSpace.findMany({
+            where : {
+                workSpaceMembers: {
+                    some: {
+                        userId: userId
+                    }
+                }
+            },
+            select : {
+                id: true,
+                name: true,
+                slug: true,
+                logoUrl: true,
+                createdAt: true,
+                workSpaceMembers: {
+                    select: {
+                        role: true,
+                        user: {
+                            select: {
+                                firstname: true,
+                                lastname: true,
+                                avatarUrl: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return {
+            'success' : true,
+            'data' : workspaces
+        };
+    }
+
+    //Fonction pour la liste des membres d'un workspace
+    static async getWorkspaceMembers(workspaceId){
+        const members = await prisma.workSpaceMembers.findMany({
+            where : {
+                workSpaceId : workspaceId
+            },
+            select : {
+                role: true,
+                user: {
+                    select: {
+                        firstname: true,
+                        lastname: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        });
+
+        return {
+            'success' : true,
+            'data' : members
+        };
+    }
 }

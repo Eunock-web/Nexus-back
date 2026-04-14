@@ -37,4 +37,24 @@ export class ProjectService {
         }
     }
 
+    //Fonction pour la liste des projets du workspace d'un utilisateur  
+    static async projectLists(workspaceId){
+        const projects = await prisma.project.findMany({
+            where : {
+                workspaceId : parseInt(workspaceId),
+            },
+            select : {
+                id : true,
+                name : true,
+                description : true,
+                projectTag : true,
+            }
+        }); 
+
+        return {
+            'success' : true,
+            'data' : projects
+        };
+    }
+
 }

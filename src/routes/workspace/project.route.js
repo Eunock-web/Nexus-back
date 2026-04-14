@@ -7,5 +7,6 @@ const projectRouter = express.Router();
 
 projectRouter.post('/create/:workspaceId', AuthMiddleware.isAuth, asyncHandler(ProjectController.createProject));
 
+projectRouter.get('/list/:workspaceId', AuthMiddleware.isAuth, asyncHandler(ProjectController.projectLists));
 
 export default projectRouter;
